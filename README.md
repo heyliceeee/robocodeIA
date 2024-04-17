@@ -16,8 +16,8 @@ Feito com 💜 e com ☕ por:
     </td>
 
 <td align="center">
-      <a href="https://github.com/DiogoVieira97">
-        <img src="https://github.com/DiogoVieira97.png" width="100px;" alt="Foto do Diogo Vieira no GitHub"/><br>
+      <a href="https://github.com/DiogoVieira81">
+        <img src="https://github.com/DiogoVieira81.png" width="100px;" alt="Foto do Diogo Vieira no GitHub"/><br>
         <sub>
           <b>Diogo Vieira</b>
         </sub>
