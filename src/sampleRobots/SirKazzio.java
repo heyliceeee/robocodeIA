@@ -1,6 +1,7 @@
 package sampleRobots;
 
 import robocode.AdvancedRobot;
+import robocode.DeathEvent;
 import robocode.HitWallEvent;
 import robocode.RobotDeathEvent;
 import robocode.ScannedRobotEvent;
@@ -10,11 +11,15 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.Point2D.Double;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
+import algoritmoGenetico.GeneticAlgortimConfig;
+import algoritmoGenetico.Solution;
 import impl.Point;
 import impl.UIConfiguration;
 import interf.IPoint;
@@ -53,6 +58,21 @@ public class SirKazzio extends AdvancedRobot {
 
     Random rand = new Random();
 
+    /**
+     * configuracoes do algoritmo genetico
+     */
+    public static GeneticAlgortimConfig geneticAlgortimConfig;
+
+    /**
+     * soluções da primeira geracao
+     */
+    public static ArrayList<Solution> ger0;
+
+    /**
+     * soluções da nova geracao
+     */
+    public static ArrayList<Solution> novaGer;
+
     // #endregion
 
     @Override
@@ -61,13 +81,70 @@ public class SirKazzio extends AdvancedRobot {
 
         customizarRobo();
 
-        // inicializar
+        // #region inicializar
         obstaculos = new ArrayList<>();
         inimigos = new HashMap<>();
-        conf = new UIConfiguration((int) getBattleFieldWidth(), (int) getBattleFieldHeight(), obstaculos); // tamanho do
+        conf = new UIConfiguration((int) getBattleFieldWidth(), (int) getBattleFieldHeight(), obstaculos); // tamanho
                                                                                                            // mapa
 
+        // ficheiro de configuracoes
+        try {
+            geneticAlgortimConfig = GeneticAlgortimConfig.fromJsonFile("GeneticAlgortimConfig.json");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // solucao
+        ger0 = inicializarGeracao0();
+        // #endregion
+
         while (true) {
+            /* for (int i = 1; i <= geneticAlgortimConfig.getMaxIterations(); i++) { */
+            Collections.sort(ger0, Collections.reverseOrder()); // ordenar individuos com o fitness maior
+
+            /*
+             * try {
+             * System.out.println("GEN: " + i + ", Best Fitness: " +
+             * ger0.get(0).getFitnessFunction() + "\n");
+             * } catch (Exception e) {
+             * e.printStackTrace();
+             * }
+             */
+
+            // Seleção + Reprodução
+            // Estratégia: manter os top getPopHereditary() soluções, gerar getPopMutation()
+            // por mutação e getPopCross() por cruzamento
+            novaGer = new ArrayList<>();
+
+            // Manter o top getPopHereditary()
+            for (int j = 0; j < geneticAlgortimConfig.getPopHereditary(); j++) {
+                novaGer.add(ger0.get(j)); // adicionar à nova geração
+            }
+
+            // Mutação das top getPopMutation()
+            for (int j = 0; j < geneticAlgortimConfig.getPopMutation(); j++) {
+                Solution copia = new Solution(ger0.get(j)); // deep copy
+
+                copia.mutate(); // mutacao da cópia
+                novaGer.add(copia); // adicionar à nova geração
+            }
+
+            // Gerar getPopCross() por cruzamento com base nas top getPopCross() Mutação é
+            // feita entre cada duas soluções consecutivas, poderiam ser escolhidas
+            // random...
+            for (int j = 0; j < geneticAlgortimConfig.getPopCross(); j += 2) {
+                Solution pai = new Solution(ger0.get(j)); // deep copy
+                Solution mae = new Solution(ger0.get(j + 1)); // deep copy
+
+                Solution[] filhos = pai.cross(mae); // cruzamento
+
+                novaGer.add(filhos[0]);
+                novaGer.add(filhos[1]);
+            }
+
+            // atualizar geração para a próxima iteração
+            ger0 = novaGer;
+
             this.setTurnRadarRight(360);
 
             // Se não há um caminho atual ou o robô chegou ao fim do caminho atual
@@ -88,8 +165,45 @@ public class SirKazzio extends AdvancedRobot {
             }
 
             this.execute();
+
+            System.out.println("LISTA DE PONTOS DO ROBO " + pontos);
+
+            Collections.sort(ger0, Collections.reverseOrder());
+
+            /*
+             * // apos de percorrer as n geracoes, mostra os top getTop()
+             * for (int i = 0; i < geneticAlgortimConfig.getTop(); i++) {
+             * System.out.println(ger0.get(i));
+             * }
+             */
         }
     }
+
+    /**
+     * criar n genes, com caminho
+     * 
+     * @return
+     */
+    public static ArrayList<Solution> inicializarGeracao0() {
+        ArrayList<Solution> gen0 = new ArrayList<Solution>(geneticAlgortimConfig.getPopSize());
+
+        for (int i = 0; i < geneticAlgortimConfig.getPopSize(); i++) {
+            gen0.add(new Solution());
+        }
+
+        return gen0;
+    }
+
+    /**
+     * o robo morreu
+     */
+    @Override
+    public void onDeath(DeathEvent event) {
+        super.onDeath(event); // Chama o método onDeath da superclasse
+
+    }
+
+    // #region MOVIMENTAR O ROBO
 
     /**
      * Gera um novo caminho aleatório.
@@ -152,6 +266,45 @@ public class SirKazzio extends AdvancedRobot {
 
         return true;
     }
+
+    /**
+     * robo vai para determinadas coordenadas
+     * 
+     * @param robo
+     * @param x
+     * @param y
+     */
+    private void RoboVaiPara(AdvancedRobot robo, int x, int y) {
+        // diferença entre a posição atual do robo e as coordenadas de destino
+        x -= robo.getX();
+        y -= robo.getY();
+
+        // ângulo para o alvo em relação à posição atual do robo
+        double anguloParaAlvo = Math.atan2(x, y);
+
+        // ângulo alvo em relação à direção atual do robo
+        double anguloAlvo = robocode.util.Utils.normalRelativeAngle(anguloParaAlvo - Math.toRadians(robo.getHeading()));
+
+        // distância até o destino
+        double distancia = Math.hypot(x, y);
+
+        // ângulo de virada necessário para atingir o ângulo alvo
+        double anguloVirada = Math.atan(Math.tan(anguloAlvo));
+
+        // define a direção de virada do robo para o ângulo de virada calculado
+        robo.setTurnRight(Math.toDegrees(anguloVirada));
+
+        // se o ângulo alvo for igual ao ângulo de virada, avança na distância calculada
+        if (anguloAlvo == anguloVirada) {
+            robo.setAhead(distancia);
+        } else {
+            robo.setBack(distancia);
+        }
+
+        robo.execute();
+    }
+
+    // #endregion
 
     /**
      * quando um robô inimigo é destruído.
@@ -301,43 +454,6 @@ public class SirKazzio extends AdvancedRobot {
 
         g.fillPolygon(xPontos, yPontos, 4); // preenche o polígono formado pelos pontos calculados, criando uma linha
                                             // com a grossura especificada
-    }
-
-    /**
-     * robo vai para determinadas coordenadas
-     * 
-     * @param robo
-     * @param x
-     * @param y
-     */
-    private void RoboVaiPara(AdvancedRobot robo, int x, int y) {
-        // diferença entre a posição atual do robo e as coordenadas de destino
-        x -= robo.getX();
-        y -= robo.getY();
-
-        // ângulo para o alvo em relação à posição atual do robo
-        double anguloParaAlvo = Math.atan2(x, y);
-
-        // ângulo alvo em relação à direção atual do robo
-        double anguloAlvo = robocode.util.Utils.normalRelativeAngle(anguloParaAlvo - Math.toRadians(robo.getHeading()));
-
-        // distância até o destino
-        double distancia = Math.hypot(x, y);
-
-        // ângulo de virada necessário para atingir o ângulo alvo
-        double anguloVirada = Math.atan(Math.tan(anguloAlvo));
-
-        // define a direção de virada do robo para o ângulo de virada calculado
-        robo.setTurnRight(Math.toDegrees(anguloVirada));
-
-        // se o ângulo alvo for igual ao ângulo de virada, avança na distância calculada
-        if (anguloAlvo == anguloVirada) {
-            robo.setAhead(distancia);
-        } else {
-            robo.setBack(distancia);
-        }
-
-        robo.execute();
     }
 
     /**

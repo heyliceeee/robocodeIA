@@ -5,7 +5,6 @@
     "java.project.outputPath": "bin",
     "java.project.referencedLibraries": [
         "lib/**/*.jar",
-        "/Users/davidecarneiro/robocode/libs/robocode.jar",
-        "d:\\robocode\\libs\\robocode.jar"
+        "/Users/davidecarneiro/robocode/libs/robocode.jar"
     ]
 }

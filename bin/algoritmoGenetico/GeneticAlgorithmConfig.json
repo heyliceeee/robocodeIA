@@ -1,0 +1,9 @@
+{
+    "mutationRate": 2,
+    "popSize": 100,
+    "popHereditary": 50,
+    "popMutation": 20,
+    "popCross": 30,
+    "maxIterations": 100,
+    "top": 10
+}
