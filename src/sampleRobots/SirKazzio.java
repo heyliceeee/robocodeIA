@@ -67,25 +67,48 @@ public class SirKazzio extends AdvancedRobot {
         while (true) {
             this.setTurnRadarRight(360);
 
-            // se está a dirigir para algum ponto
-            if (pontoAtual >= 0) {
-                IPoint ponto = pontos.get(pontoAtual);
+            // Se não há um caminho atual ou o robô chegou ao fim do caminho atual
+            if (pontoAtual == -1 || pontoAtual >= pontos.size()) {
+                // Gera um novo caminho aleatório
+                gerarCaminhoRandom();
+            }
 
-                // se já está no ponto ou lá perto...
+            // Se ainda há pontos no caminho, move-se em direção ao próximo ponto
+            if (pontoAtual >= 0 && pontoAtual < pontos.size()) {
+                IPoint ponto = pontos.get(pontoAtual);
+                // Se já está no ponto ou lá perto...
                 if (Utils.getDistance(this, ponto.getX(), ponto.getY()) < 2) {
                     pontoAtual++;
-
-                    // se chegou ao fim do caminho
-                    if (pontoAtual >= pontos.size()) {
-                        pontoAtual = -1;
-                    }
                 }
-
+                // Move-se em direção ao próximo ponto no caminho
                 RoboVaiPara(this, ponto.getX(), ponto.getY());
             }
 
             this.execute();
         }
+    }
+
+    /**
+     * Gera um novo caminho aleatório.
+     */
+    private void gerarCaminhoRandom() {
+        Random rand = new Random();
+        conf.setStart(new Point((int) this.getX(), (int) this.getY()));
+        // Define o ponto de destino como uma posição aleatória no campo de batalha
+        conf.setEnd(new Point(rand.nextInt(conf.getWidth()), rand.nextInt(conf.getHeight())));
+
+        // Gera um novo caminho aleatório com um número aleatório de nós intermediários
+        pontos = new ArrayList<>();
+        pontos.add(new Point((int) this.getX(), (int) this.getY())); // Adiciona o ponto de partida
+        int size = rand.nextInt(5); // Cria um caminho aleatório com no máximo 5 nós intermédios (excetuando início
+                                    // e fim)
+        for (int i = 0; i < size; i++) {
+            pontos.add(new Point(rand.nextInt(conf.getWidth()), rand.nextInt(conf.getHeight()))); // Adiciona nós
+                                                                                                  // intermediários
+                                                                                                  // aleatórios
+        }
+        pontos.add(conf.getEnd()); // Adiciona o ponto de destino
+        pontoAtual = 0; // Define o ponto atual como o ponto de partida
     }
 
     /**
