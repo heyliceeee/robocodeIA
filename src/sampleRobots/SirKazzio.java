@@ -1,6 +1,7 @@
 package sampleRobots;
 
 import robocode.AdvancedRobot;
+import robocode.HitWallEvent;
 import robocode.RobotDeathEvent;
 import robocode.ScannedRobotEvent;
 import utils.Utils;
@@ -50,6 +51,8 @@ public class SirKazzio extends AdvancedRobot {
      */
     private int pontoAtual = -1;
 
+    Random rand = new Random();
+
     // #endregion
 
     @Override
@@ -92,7 +95,6 @@ public class SirKazzio extends AdvancedRobot {
      * Gera um novo caminho aleatório.
      */
     private void gerarCaminhoRandom() {
-        Random rand = new Random();
         conf.setStart(new Point((int) this.getX(), (int) this.getY()));
         // Define o ponto de destino como uma posição aleatória no campo de batalha
         conf.setEnd(new Point(rand.nextInt(conf.getWidth()), rand.nextInt(conf.getHeight())));
@@ -109,6 +111,46 @@ public class SirKazzio extends AdvancedRobot {
         }
         pontos.add(conf.getEnd()); // Adiciona o ponto de destino
         pontoAtual = 0; // Define o ponto atual como o ponto de partida
+    }
+
+    /**
+     * colidiu com a parede
+     */
+    @Override
+    public void onHitWall(HitWallEvent event) {
+        super.onHitWall(event);
+
+        // Define o ponto de destino como uma posição aleatória no campo de batalha,
+        // evitando a parede
+        int newX = rand.nextInt(conf.getWidth());
+        int newY = rand.nextInt(conf.getHeight());
+
+        while (!isSafe(newX, newY)) {
+            newX = rand.nextInt(conf.getWidth());
+            newY = rand.nextInt(conf.getHeight());
+        }
+
+        conf.setEnd(new Point(newX, newY));
+
+        // Gera um novo caminho aleatório
+        gerarCaminhoRandom();
+    }
+
+    /**
+     * Verifica se uma posição é segura (não está dentro de uma parede).
+     * 
+     * @param x A coordenada x da posição a ser verificada.
+     * @param y A coordenada y da posição a ser verificada.
+     * @return true se a posição é segura, false caso contrário.
+     */
+    private boolean isSafe(int x, int y) {
+        for (Rectangle obstaculo : obstaculos) {
+            if (obstaculo.contains(x, y)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
