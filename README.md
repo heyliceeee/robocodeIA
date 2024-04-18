@@ -24,8 +24,8 @@ Feito com 💜 e com ☕ por:
       </a>
     </td>
     <td align="center">
-      <a href="https://github.com/">
-        <img src="https://github.com/.png" width="100px;" alt="Foto do Joaquim Sousa no GitHub"/><br>
+      <a href="https://github.com/8100423">
+        <img src="https://github.com/8100423.png" width="100px;" alt="Foto do Joaquim Sousa no GitHub"/><br>
         <sub>
           <b>Joaquim Sousa</b>
         </sub>
