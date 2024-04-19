@@ -19,7 +19,7 @@ public class Solution implements Comparable<Solution> {
 
     }
 
-    public int getFitnessFunction() throws Exception {
+    public int getFitnessFunction() {
 
         return totalColisoes;
     }
@@ -67,6 +67,12 @@ public class Solution implements Comparable<Solution> {
         }
 
         return 0;
+    }
+
+    @Override
+    public String toString() {
+        return "Solution [pontos=" + pontos + ", totalColisoes=" + totalColisoes + ", getFitnessFunction()="
+                + getFitnessFunction() + "]";
     }
 
 }

@@ -90,11 +90,10 @@ public class SirKazzio extends AdvancedRobot {
         conf = new UIConfiguration((int) getBattleFieldWidth(), (int) getBattleFieldHeight(), obstaculos); // tamanho
                                                                                                            // mapa
 
+        ger0 = inicializarGeracao0();// solucao
         // #endregion
 
         while (true) {
-
-            // TODO: FUNCIONA
             this.setTurnRadarRight(360);
 
             // Se não há um caminho atual ou o robô chegou ao fim do caminho atual
