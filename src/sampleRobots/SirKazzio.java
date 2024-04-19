@@ -8,17 +8,13 @@ import robocode.ScannedRobotEvent;
 import utils.Utils;
 
 import java.awt.*;
-import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.Point2D.Double;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
-import algoritmoGenetico.GeneticAlgorithmConfig;
 import algoritmoGenetico.Solution;
 import impl.Point;
 import impl.UIConfiguration;
@@ -29,6 +25,18 @@ import interf.IPoint;
  */
 public class SirKazzio extends AdvancedRobot {
     // #region VARIÁVEIS
+
+    // #region CONFIGURAÇÕES DO ALGORITMO GENERICO
+
+    public static final int MUTATION_RATE = 2;
+    public static final int POP_SIZE = 100;
+    public static final int POP_HEREDITARY = 50;
+    public static final int POP_MUTATION = 20;
+    public static final int POP_CROSS = 30;
+    public static final int MAX_ITERATIONS = 100;
+    public static final int TOP = 10;
+
+    // #endregion
 
     /**
      * lista de obstaculos preenchida ao fazer scan
@@ -57,11 +65,6 @@ public class SirKazzio extends AdvancedRobot {
     private int pontoAtual = -1;
 
     Random rand = new Random();
-
-    /**
-     * configuracoes do algoritmo genetico
-     */
-    // public static GeneticAlgorithmConfig GeneticAlgorithmConfig;
 
     /**
      * soluções da primeira geracao
@@ -120,19 +123,17 @@ public class SirKazzio extends AdvancedRobot {
      * 
      * @return
      */
-    /*
-     * public ArrayList<Solution> inicializarGeracao0() {
-     * ArrayList<Solution> gen0 = new
-     * ArrayList<Solution>(GeneticAlgorithmConfig.getPopSize());
-     * 
-     * for (int i = 0; i < GeneticAlgorithmConfig.getPopSize(); i++) {
-     * gen0.add(new Solution());
-     * }
-     * 
-     * System.out.println("GEN0" + gen0.toString());
-     * return gen0;
-     * }
-     */
+
+    public ArrayList<Solution> inicializarGeracao0() {
+        ArrayList<Solution> gen0 = new ArrayList<Solution>(POP_SIZE);
+
+        for (int i = 0; i < POP_SIZE; i++) {
+            gen0.add(new Solution());
+        }
+
+        System.out.println("GEN0" + gen0.toString());
+        return gen0;
+    }
 
     /**
      * o robo morreu
