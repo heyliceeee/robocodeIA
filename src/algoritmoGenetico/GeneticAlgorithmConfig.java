@@ -5,7 +5,7 @@ import java.io.IOException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.annotation.JsonView;
 
-public class GeneticAlgortimConfig {
+public class GeneticAlgorithmConfig {
 
     private int mutationRate;
     private int popSize;
@@ -15,9 +15,9 @@ public class GeneticAlgortimConfig {
     private int maxIterations;
     private int top;
 
-    public static GeneticAlgortimConfig fromJsonFile(String filePath) throws IOException {
+    public static GeneticAlgorithmConfig fromJsonFile(String filePath) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.readValue(new File(filePath), GeneticAlgortimConfig.class);
+        return objectMapper.readValue(new File(filePath), GeneticAlgorithmConfig.class);
     }
 
     public int getMutationRate() {

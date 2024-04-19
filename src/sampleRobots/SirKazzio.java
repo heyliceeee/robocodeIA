@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
-import algoritmoGenetico.GeneticAlgortimConfig;
+import algoritmoGenetico.GeneticAlgorithmConfig;
 import algoritmoGenetico.Solution;
 import impl.Point;
 import impl.UIConfiguration;
@@ -61,7 +61,7 @@ public class SirKazzio extends AdvancedRobot {
     /**
      * configuracoes do algoritmo genetico
      */
-    private GeneticAlgortimConfig geneticAlgortimConfig;
+    // public static GeneticAlgorithmConfig GeneticAlgorithmConfig;
 
     /**
      * soluções da primeira geracao
@@ -120,16 +120,19 @@ public class SirKazzio extends AdvancedRobot {
      * 
      * @return
      */
-    public static ArrayList<Solution> inicializarGeracao0() {
-        ArrayList<Solution> gen0 = new ArrayList<Solution>(geneticAlgortimConfig.getPopSize());
-
-        for (int i = 0; i < geneticAlgortimConfig.getPopSize(); i++) {
-            gen0.add(new Solution());
-        }
-
-        System.out.println("GEN0" + gen0.toString());
-        return gen0;
-    }
+    /*
+     * public ArrayList<Solution> inicializarGeracao0() {
+     * ArrayList<Solution> gen0 = new
+     * ArrayList<Solution>(GeneticAlgorithmConfig.getPopSize());
+     * 
+     * for (int i = 0; i < GeneticAlgorithmConfig.getPopSize(); i++) {
+     * gen0.add(new Solution());
+     * }
+     * 
+     * System.out.println("GEN0" + gen0.toString());
+     * return gen0;
+     * }
+     */
 
     /**
      * o robo morreu
