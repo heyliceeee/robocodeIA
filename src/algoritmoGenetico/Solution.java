@@ -11,19 +11,27 @@ public class Solution implements Comparable<Solution> {
     private List<IPoint> pontos; // o conteúdo da solução
     private int totalColisoes = 0; // total de letras iguais durante a funcao de fitness
 
+    // TODO: FAZER O CONSTRUTOR DE COPIA
     public Solution(Solution sol) {
 
     }
 
+    // TODO: FAZER O CONSTRUTOR PRINCIPAL, QUE CRIA UMA SOLUÇÃO (LISTA DE PONTOS
+    // PERCORRIDOS)
     public Solution() {
 
     }
 
+    // TODO: FAZER A FUNCAO FITNESS QUE ESCOLHE O CAMINHO COM MENOS COLISOES
+    // POSSSIVEL
     public int getFitnessFunction() {
 
         return totalColisoes;
     }
 
+    // TODO: FAZER UM GRAFICO DE EVOLUCAO DE CADA AMOSTRA DE POPULAÇÃO
+
+    // TODO
     /**
      * implementar a mutação na solução atual.
      */
@@ -31,6 +39,7 @@ public class Solution implements Comparable<Solution> {
 
     }
 
+    // TODO
     /**
      * realizar o cruzamento entre esta solução e outra solução
      */
@@ -74,5 +83,4 @@ public class Solution implements Comparable<Solution> {
         return "Solution [pontos=" + pontos + ", totalColisoes=" + totalColisoes + ", getFitnessFunction()="
                 + getFitnessFunction() + "]";
     }
-
 }

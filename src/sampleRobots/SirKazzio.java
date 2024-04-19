@@ -37,7 +37,7 @@ public class SirKazzio extends AdvancedRobot {
     /**
      * tamanho da população
      */
-    public static final int POP_SIZE = 100;
+    public static final int POP_SIZE = 10;
 
     /**
      * percentagem da população que será selecionada para a reprodução com base no
@@ -60,13 +60,13 @@ public class SirKazzio extends AdvancedRobot {
      * número máximo de gerações que o algoritmo genético irá executar antes de
      * parar
      */
-    public static final int MAX_ITERATIONS = 100;
+    public static final int MAX_ITERATIONS = 10;
 
     /**
      * número de melhores indivíduos que serão mantidos inalterados na próxima
      * geração. Eles são selecionados com base em seu fitness.
      */
-    public static final int TOP = 10;
+    public static final int TOP = 2;
 
     // #endregion
 
@@ -122,6 +122,8 @@ public class SirKazzio extends AdvancedRobot {
         conf = new UIConfiguration((int) getBattleFieldWidth(), (int) getBattleFieldHeight(), obstaculos); // tamanho
                                                                                                            // mapa
 
+        // TODO: ARRANJAR! TEM DE ALGUMA FORMA GUARDAR TODOS OS PONTOS E O TOTAL DE
+        // COLISÕES
         ger0 = inicializarGeracao0(); // solucao
         // #endregion
 
@@ -137,16 +139,16 @@ public class SirKazzio extends AdvancedRobot {
                 }
 
                 // Seleção + Reprodução
-                // Estratégia: manter os top getPopHereditary() soluções, gerar getPopMutation()
-                // por mutação e getPopCross() por cruzamento
+                // Estratégia: manter os top POPHETERARY soluções, gerar POPMUTATION
+                // por mutação e POPCROSS por cruzamento
                 novaGer = new ArrayList<>();
 
-                // Manter o top getPopHereditary()
+                // Manter o top POPHETERARY
                 for (int j = 0; j < POP_HEREDITARY; j++) {
                     novaGer.add(ger0.get(j)); // adicionar à nova geração
                 }
 
-                // Mutação das top getPopMutation()
+                // Mutação das top POPMUTATION
                 for (int j = 0; j < POP_MUTATION; j++) {
                     Solution copia = new Solution(ger0.get(j)); // deep copy
 
@@ -154,7 +156,7 @@ public class SirKazzio extends AdvancedRobot {
                     novaGer.add(copia); // adicionar à nova geração
                 }
 
-                // Gerar getPopCross() por cruzamento com base nas top getPopCross() Mutação é
+                // Gerar POPCROSS por cruzamento com base nas top POPCROSS Mutação é
                 // feita entre cada duas soluções consecutivas, poderiam ser escolhidas
                 // random...
                 for (int j = 0; j < POP_CROSS; j += 2) {
@@ -216,7 +218,6 @@ public class SirKazzio extends AdvancedRobot {
             gen0.add(new Solution());
         }
 
-        System.out.println("GEN0" + gen0.toString());
         return gen0;
     }
 
