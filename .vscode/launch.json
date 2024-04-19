@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "SirKazzio",
+            "request": "launch",
+            "mainClass": "sampleRobots.SirKazzio",
+            "projectName": "robocodeIA_d7e9bf08"
+        },
+        {
+            "type": "java",
             "name": "Current File",
             "request": "launch",
             "mainClass": "${file}"
