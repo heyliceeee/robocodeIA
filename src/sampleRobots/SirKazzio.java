@@ -38,7 +38,7 @@ public class SirKazzio extends AdvancedRobot {
     /**
      * configurações
      */
-    public static UIConfiguration conf;
+    private UIConfiguration conf;
 
     /**
      * lista de pontos do mapa
@@ -61,17 +61,17 @@ public class SirKazzio extends AdvancedRobot {
     /**
      * configuracoes do algoritmo genetico
      */
-    public static GeneticAlgortimConfig geneticAlgortimConfig;
+    private GeneticAlgortimConfig geneticAlgortimConfig;
 
     /**
      * soluções da primeira geracao
      */
-    public static ArrayList<Solution> ger0;
+    private ArrayList<Solution> ger0;
 
     /**
      * soluções da nova geracao
      */
-    public static ArrayList<Solution> novaGer;
+    private ArrayList<Solution> novaGer;
 
     // #endregion
 
@@ -87,64 +87,11 @@ public class SirKazzio extends AdvancedRobot {
         conf = new UIConfiguration((int) getBattleFieldWidth(), (int) getBattleFieldHeight(), obstaculos); // tamanho
                                                                                                            // mapa
 
-        // ficheiro de configuracoes
-        try {
-            geneticAlgortimConfig = GeneticAlgortimConfig.fromJsonFile("GeneticAlgortimConfig.json");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        // solucao
-        ger0 = inicializarGeracao0();
         // #endregion
 
         while (true) {
-            /* for (int i = 1; i <= geneticAlgortimConfig.getMaxIterations(); i++) { */
-            Collections.sort(ger0, Collections.reverseOrder()); // ordenar individuos com o fitness maior
 
-            /*
-             * try {
-             * System.out.println("GEN: " + i + ", Best Fitness: " +
-             * ger0.get(0).getFitnessFunction() + "\n");
-             * } catch (Exception e) {
-             * e.printStackTrace();
-             * }
-             */
-
-            // Seleção + Reprodução
-            // Estratégia: manter os top getPopHereditary() soluções, gerar getPopMutation()
-            // por mutação e getPopCross() por cruzamento
-            novaGer = new ArrayList<>();
-
-            // Manter o top getPopHereditary()
-            for (int j = 0; j < geneticAlgortimConfig.getPopHereditary(); j++) {
-                novaGer.add(ger0.get(j)); // adicionar à nova geração
-            }
-
-            // Mutação das top getPopMutation()
-            for (int j = 0; j < geneticAlgortimConfig.getPopMutation(); j++) {
-                Solution copia = new Solution(ger0.get(j)); // deep copy
-
-                copia.mutate(); // mutacao da cópia
-                novaGer.add(copia); // adicionar à nova geração
-            }
-
-            // Gerar getPopCross() por cruzamento com base nas top getPopCross() Mutação é
-            // feita entre cada duas soluções consecutivas, poderiam ser escolhidas
-            // random...
-            for (int j = 0; j < geneticAlgortimConfig.getPopCross(); j += 2) {
-                Solution pai = new Solution(ger0.get(j)); // deep copy
-                Solution mae = new Solution(ger0.get(j + 1)); // deep copy
-
-                Solution[] filhos = pai.cross(mae); // cruzamento
-
-                novaGer.add(filhos[0]);
-                novaGer.add(filhos[1]);
-            }
-
-            // atualizar geração para a próxima iteração
-            ger0 = novaGer;
-
+            // TODO: FUNCIONA
             this.setTurnRadarRight(360);
 
             // Se não há um caminho atual ou o robô chegou ao fim do caminho atual
@@ -165,17 +112,6 @@ public class SirKazzio extends AdvancedRobot {
             }
 
             this.execute();
-
-            System.out.println("LISTA DE PONTOS DO ROBO " + pontos);
-
-            Collections.sort(ger0, Collections.reverseOrder());
-
-            /*
-             * // apos de percorrer as n geracoes, mostra os top getTop()
-             * for (int i = 0; i < geneticAlgortimConfig.getTop(); i++) {
-             * System.out.println(ger0.get(i));
-             * }
-             */
         }
     }
 
@@ -191,6 +127,7 @@ public class SirKazzio extends AdvancedRobot {
             gen0.add(new Solution());
         }
 
+        System.out.println("GEN0" + gen0.toString());
         return gen0;
     }
 

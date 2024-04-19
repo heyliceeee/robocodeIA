@@ -6,5 +6,8 @@
     "java.project.referencedLibraries": [
         "lib/**/*.jar",
         "/Users/davidecarneiro/robocode/libs/robocode.jar"
-    ]
+    ],
+    "[java]": {
+        "editor.defaultFormatter": "redhat.java",
+      },
 }
