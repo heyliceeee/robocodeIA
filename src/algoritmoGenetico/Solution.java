@@ -1,5 +1,6 @@
 package algoritmoGenetico;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -8,25 +9,28 @@ import interf.IPoint;
 
 public class Solution implements Comparable<Solution> {
 
-    private List<IPoint> pontos; // o conteúdo da solução
-    private int totalColisoes = 0; // total de letras iguais durante a funcao de fitness
+    private ArrayList<IPoint> pontosSolucao; // o conteúdo da solução
+    private int pontosIntermedios = 0; // total de letras iguais durante a funcao de fitness
 
     // TODO: FAZER O CONSTRUTOR DE COPIA
     public Solution(Solution sol) {
 
     }
 
+    public Solution(ArrayList<IPoint> pontos) {
+        this.pontosSolucao = pontos;
+        this.pontosIntermedios = pontosSolucao.size() - 2;
+    }
+
     // TODO: FAZER O CONSTRUTOR PRINCIPAL, QUE CRIA UMA SOLUÇÃO (LISTA DE PONTOS
     // PERCORRIDOS)
     public Solution() {
-
+        this.pontosSolucao = new ArrayList<IPoint>();
     }
 
-    // TODO: FAZER A FUNCAO FITNESS QUE ESCOLHE O CAMINHO COM MENOS COLISOES
-    // POSSSIVEL
     public int getFitnessFunction() {
 
-        return totalColisoes;
+        return pontosIntermedios;
     }
 
     // TODO: FAZER UM GRAFICO DE EVOLUCAO DE CADA AMOSTRA DE POPULAÇÃO
@@ -80,7 +84,8 @@ public class Solution implements Comparable<Solution> {
 
     @Override
     public String toString() {
-        return "Solution [pontos=" + pontos + ", totalColisoes=" + totalColisoes + ", getFitnessFunction()="
+        return "Solution [pontos=" + pontosSolucao + ", pontosIntermedios=" + pontosIntermedios
+                + ", getFitnessFunction()="
                 + getFitnessFunction() + "]";
     }
 }

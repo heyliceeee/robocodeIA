@@ -83,7 +83,7 @@ public class SirKazzio extends AdvancedRobot {
     /**
      * lista de pontos do mapa
      */
-    private List<IPoint> pontos;
+    private ArrayList<IPoint> pontos;
 
     /**
      * associar inimigos a retângulos e permitir remover retângulos de inimigos já
@@ -122,17 +122,16 @@ public class SirKazzio extends AdvancedRobot {
         conf = new UIConfiguration((int) getBattleFieldWidth(), (int) getBattleFieldHeight(), obstaculos); // tamanho
                                                                                                            // mapa
 
-        // TODO: ARRANJAR! TEM DE ALGUMA FORMA GUARDAR TODOS OS PONTOS E O TOTAL DE
-        // COLISÕES
+        // TODO: ARRANJAR! TEM DE ALGUMA FORMA GUARDAR TODOS OS PONTOS E O TOTAL PONTOS
+        // INTERMEDIOS
         ger0 = inicializarGeracao0(); // solucao
         // #endregion
 
         while (true) {
             for (int i = 1; i <= MAX_ITERATIONS; i++) {
 
-                // TODO: ESTA A DAR ERRO!!
                 // se existir dados no ger0
-                if (!ger0.isEmpty() && ger0.size() < POP_SIZE) {
+                if (!ger0.isEmpty() && ger0.size() <= POP_SIZE) {
                     Collections.sort(ger0, Collections.reverseOrder()); // ordenar individuos com o fitness maior
 
                     try {
@@ -203,12 +202,27 @@ public class SirKazzio extends AdvancedRobot {
 
             System.out.println("LISTA DE PONTOS DO ROBO " + pontos);
 
+            definirFuncaoFitness();
+
             Collections.sort(ger0, Collections.reverseOrder());
 
             // apos de percorrer as n geracoes, mostra os top getTop()
             for (int i = 0; i < TOP; i++) {
                 System.out.println(ger0.get(i));
             }
+        }
+    }
+
+    /**
+     * definir a funcao fitness
+     * 
+     * @return
+     */
+
+    public void definirFuncaoFitness() {
+
+        for (int i = 0; i < POP_SIZE; i++) {
+            ger0.add(new Solution(pontos));
         }
     }
 
