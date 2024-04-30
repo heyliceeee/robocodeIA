@@ -37,7 +37,7 @@ public class SirKazzio extends AdvancedRobot {
     /**
      * tamanho da população
      */
-    public static final int POP_SIZE = 10;
+    public static final int POP_SIZE = 100;
 
     /**
      * percentagem da população que será selecionada para a reprodução com base no
@@ -60,13 +60,13 @@ public class SirKazzio extends AdvancedRobot {
      * número máximo de gerações que o algoritmo genético irá executar antes de
      * parar
      */
-    public static final int MAX_ITERATIONS = 10;
+    public static final int MAX_ITERATIONS = 100;
 
     /**
      * número de melhores indivíduos que serão mantidos inalterados na próxima
      * geração. Eles são selecionados com base em seu fitness.
      */
-    public static final int TOP = 2;
+    public static final int TOP = 10;
 
     // #endregion
 
@@ -129,13 +129,20 @@ public class SirKazzio extends AdvancedRobot {
 
         while (true) {
             for (int i = 1; i <= MAX_ITERATIONS; i++) {
-                Collections.sort(ger0, Collections.reverseOrder()); // ordenar individuos com o fitness maior
 
-                try {
-                    System.out.println("GEN: " + i + ", Best Fitness: " +
-                            ger0.get(0).getFitnessFunction() + "\n");
-                } catch (Exception e) {
-                    e.printStackTrace();
+                // TODO: ESTA A DAR ERRO!!
+                // se existir dados no ger0
+                if (!ger0.isEmpty() && ger0.size() < POP_SIZE) {
+                    Collections.sort(ger0, Collections.reverseOrder()); // ordenar individuos com o fitness maior
+
+                    try {
+                        System.out.println("GEN: " + i + ", Best Fitness: " +
+                                ger0.get(0).getFitnessFunction() + "\n");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    System.out.println("Lista ger0 não possui elementos suficientes.");
                 }
 
                 // Seleção + Reprodução
