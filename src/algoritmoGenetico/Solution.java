@@ -19,7 +19,7 @@ public class Solution implements Comparable<Solution> {
 
     public Solution(ArrayList<IPoint> pontos) {
         this.pontosSolucao = pontos;
-        this.pontosIntermedios = pontosSolucao.size() - 2;
+        this.pontosIntermedios = this.pontosSolucao.size() - 2;
     }
 
     // TODO: FAZER O CONSTRUTOR PRINCIPAL, QUE CRIA UMA SOLUÇÃO (LISTA DE PONTOS
@@ -28,9 +28,13 @@ public class Solution implements Comparable<Solution> {
         this.pontosSolucao = new ArrayList<IPoint>();
     }
 
+    public ArrayList<IPoint> getPoints() {
+        return pontosSolucao;
+    }
+
     public int getFitnessFunction() {
 
-        return pontosIntermedios;
+        return this.pontosIntermedios;
     }
 
     // TODO: FAZER UM GRAFICO DE EVOLUCAO DE CADA AMOSTRA DE POPULAÇÃO
@@ -62,30 +66,12 @@ public class Solution implements Comparable<Solution> {
      * @return
      */
     @Override
-    public int compareTo(Solution o) {
-        try {
-            if (this.getFitnessFunction() > o.getFitnessFunction()) {
-                return 1;
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-        try {
-            if (this.getFitnessFunction() < o.getFitnessFunction()) {
-                return -1;
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-        return 0;
+    public int compareTo(Solution other) {
+        return Integer.compare(this.getFitnessFunction(), other.getFitnessFunction());
     }
 
     @Override
     public String toString() {
-        return "Solution [pontos=" + pontosSolucao + ", pontosIntermedios=" + pontosIntermedios
-                + ", getFitnessFunction()="
-                + getFitnessFunction() + "]";
+        return "Solution [pontos=" + pontosSolucao + ", getFitnessFunction()=" + getFitnessFunction() + "]";
     }
 }

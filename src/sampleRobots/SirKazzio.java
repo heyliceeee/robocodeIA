@@ -60,13 +60,13 @@ public class SirKazzio extends AdvancedRobot {
      * número máximo de gerações que o algoritmo genético irá executar antes de
      * parar
      */
-    public static final int MAX_ITERATIONS = 100;
+    public static final int MAX_ITERATIONS = 10;
 
     /**
      * número de melhores indivíduos que serão mantidos inalterados na próxima
      * geração. Eles são selecionados com base em seu fitness.
      */
-    public static final int TOP = 10;
+    public static final int TOP = 2;
 
     // #endregion
 
@@ -128,22 +128,28 @@ public class SirKazzio extends AdvancedRobot {
         // #endregion
 
         while (true) {
+
+            // TODO: ISTO ESTA A FAZER PARA TODAS AS GENERATIONS, E EU QUERO QUE ESTA LOGICA
+            // FAÇA PARA CADA GENERATION
+
             for (int i = 1; i <= MAX_ITERATIONS; i++) {
 
                 // se existir dados no ger0
-                if (!ger0.isEmpty() && ger0.size() <= POP_SIZE) {
-                    Collections.sort(ger0, Collections.reverseOrder()); // ordenar individuos com o fitness maior
-
-                    try {
-                        System.out.println("GEN: " + i + ", Best Fitness: " +
-                                ger0.get(0).getFitnessFunction() + "\n");
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    System.out.println("Lista ger0 não possui elementos suficientes.");
-                }
-
+                /*
+                 * if (!ger0.isEmpty() && ger0.size() <= POP_SIZE) {
+                 * Collections.sort(ger0, Collections.reverseOrder()); // ordenar individuos com
+                 * o fitness maior
+                 * 
+                 * try {
+                 * System.out.println("GEN: " + i + ", Best Fitness: " +
+                 * ger0.get(0).getFitnessFunction() + "\n");
+                 * } catch (Exception e) {
+                 * e.printStackTrace();
+                 * }
+                 * } else {
+                 * System.out.println("Lista ger0 não possui elementos suficientes.");
+                 * }
+                 */
                 // Seleção + Reprodução
                 // Estratégia: manter os top POPHETERARY soluções, gerar POPMUTATION
                 // por mutação e POPCROSS por cruzamento
@@ -202,13 +208,13 @@ public class SirKazzio extends AdvancedRobot {
 
             System.out.println("LISTA DE PONTOS DO ROBO " + pontos);
 
-            definirFuncaoFitness();
+            calcularFitness();
 
             Collections.sort(ger0, Collections.reverseOrder());
 
             // apos de percorrer as n geracoes, mostra os top getTop()
             for (int i = 0; i < TOP; i++) {
-                System.out.println(ger0.get(i));
+                System.out.println("TOP: " + ger0.get(i));
             }
         }
     }
@@ -219,7 +225,7 @@ public class SirKazzio extends AdvancedRobot {
      * @return
      */
 
-    public void definirFuncaoFitness() {
+    public void calcularFitness() {
 
         for (int i = 0; i < POP_SIZE; i++) {
             ger0.add(new Solution(pontos));
@@ -233,7 +239,7 @@ public class SirKazzio extends AdvancedRobot {
      */
 
     public ArrayList<Solution> inicializarGeracao0() {
-        ArrayList<Solution> gen0 = new ArrayList<Solution>(POP_SIZE);
+        ArrayList<Solution> gen0 = new ArrayList<Solution>();
 
         for (int i = 0; i < POP_SIZE; i++) {
             gen0.add(new Solution());
@@ -353,6 +359,8 @@ public class SirKazzio extends AdvancedRobot {
     }
 
     // #endregion
+
+    // #region OUTROS METODOS (NAO MEXER)
 
     /**
      * quando um robô inimigo é destruído.
@@ -511,4 +519,6 @@ public class SirKazzio extends AdvancedRobot {
         // setColors(body, gun, radar, bullet, scanArc)
         setColors(Color.red, Color.black, Color.lightGray, Color.white, Color.red);
     }
+
+    // #endregion
 }
