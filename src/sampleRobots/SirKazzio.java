@@ -4,6 +4,7 @@ import robocode.AdvancedRobot;
 import robocode.DeathEvent;
 import robocode.HitWallEvent;
 import robocode.RobotDeathEvent;
+import robocode.RobotStatus;
 import robocode.ScannedRobotEvent;
 import utils.Utils;
 
@@ -101,12 +102,12 @@ public class SirKazzio extends AdvancedRobot {
     /**
      * soluções da primeira geracao
      */
-    private ArrayList<Solution> ger0;
+    public static ArrayList<Solution> ger0 = new ArrayList<>();
 
     /**
      * soluções da nova geracao
      */
-    private ArrayList<Solution> novaGer;
+    public static ArrayList<Solution> novaGer;
 
     // #endregion
 
@@ -124,65 +125,50 @@ public class SirKazzio extends AdvancedRobot {
 
         // TODO: ARRANJAR! TEM DE ALGUMA FORMA GUARDAR TODOS OS PONTOS E O TOTAL PONTOS
         // INTERMEDIOS
-        ger0 = inicializarGeracao0(); // solucao
+        // ger0 = inicializarGeracao0(); // solucao
         // #endregion
 
         while (true) {
 
-            // TODO: ISTO ESTA A FAZER PARA TODAS AS GENERATIONS, E EU QUERO QUE ESTA LOGICA
-            // FAÇA PARA CADA GENERATION
+            for (int j = getRoundNum(); j < getNumRounds();) {
+                // quando nao estiver na primeira ronda, pode fazer cruzamentos, mutacoes e
+                // reproducoes
+                if (j > 0) {
+                    // Seleção + Reprodução
+                    // Estratégia: manter os top POPHETERARY soluções, gerar POPMUTATION
+                    // por mutação e POPCROSS por cruzamento
+                    novaGer = new ArrayList<>();
 
-            for (int i = 1; i <= MAX_ITERATIONS; i++) {
+                    // Manter o top POPHETERARY
+                    // Manter o top POP_HEREDITARY
+                    for (int k = 0; k < (ger0.size() / 2); k++) {
+                        novaGer.add(ger0.get(k)); // adicionar à nova geração
+                    }
 
-                // se existir dados no ger0
-                /*
-                 * if (!ger0.isEmpty() && ger0.size() <= POP_SIZE) {
-                 * Collections.sort(ger0, Collections.reverseOrder()); // ordenar individuos com
-                 * o fitness maior
-                 * 
-                 * try {
-                 * System.out.println("GEN: " + i + ", Best Fitness: " +
-                 * ger0.get(0).getFitnessFunction() + "\n");
-                 * } catch (Exception e) {
-                 * e.printStackTrace();
-                 * }
-                 * } else {
-                 * System.out.println("Lista ger0 não possui elementos suficientes.");
-                 * }
-                 */
-                // Seleção + Reprodução
-                // Estratégia: manter os top POPHETERARY soluções, gerar POPMUTATION
-                // por mutação e POPCROSS por cruzamento
-                novaGer = new ArrayList<>();
+                    // Mutação das top POPMUTATION
+                    for (int k = 0; k < (ger0.size() / 2); k++) {
+                        Solution copia = new Solution(ger0.get(k)); // deep copy
 
-                // Manter o top POPHETERARY
-                for (int j = 0; j < POP_HEREDITARY; j++) {
-                    novaGer.add(ger0.get(j)); // adicionar à nova geração
+                        copia.mutate(); // mutacao da cópia
+                        novaGer.add(copia); // adicionar à nova geração
+                    }
+
+                    // Gerar POPCROSS por cruzamento com base nas top POPCROSS Mutação é
+                    // feita entre cada duas soluções consecutivas, poderiam ser escolhidas
+                    // random...
+                    for (int k = 0; k < (ger0.size() / 2); k += 2) {
+                        Solution pai = new Solution(ger0.get(k)); // deep copy
+                        Solution mae = new Solution(ger0.get(k + 1)); // deep copy
+
+                        Solution[] filhos = pai.cross(mae); // cruzamento
+
+                        novaGer.add(filhos[0]);
+                        novaGer.add(filhos[1]);
+                    }
+
+                    // atualizar geração para a próxima iteração
+                    ger0 = novaGer;
                 }
-
-                // Mutação das top POPMUTATION
-                for (int j = 0; j < POP_MUTATION; j++) {
-                    Solution copia = new Solution(ger0.get(j)); // deep copy
-
-                    copia.mutate(); // mutacao da cópia
-                    novaGer.add(copia); // adicionar à nova geração
-                }
-
-                // Gerar POPCROSS por cruzamento com base nas top POPCROSS Mutação é
-                // feita entre cada duas soluções consecutivas, poderiam ser escolhidas
-                // random...
-                for (int j = 0; j < POP_CROSS; j += 2) {
-                    Solution pai = new Solution(ger0.get(j)); // deep copy
-                    Solution mae = new Solution(ger0.get(j + 1)); // deep copy
-
-                    Solution[] filhos = pai.cross(mae); // cruzamento
-
-                    novaGer.add(filhos[0]);
-                    novaGer.add(filhos[1]);
-                }
-
-                // atualizar geração para a próxima iteração
-                ger0 = novaGer;
 
                 this.setTurnRadarRight(360);
 
@@ -205,14 +191,11 @@ public class SirKazzio extends AdvancedRobot {
 
                 this.execute();
             }
-
-            System.out.println("LISTA DE PONTOS DO ROBO " + pontos);
-
-            calcularFitness();
+            // }
 
             Collections.sort(ger0, Collections.reverseOrder());
 
-            // apos de percorrer as n geracoes, mostra os top getTop()
+            // apos de percorrer as rondas todas, mostra os top getTop()
             for (int i = 0; i < TOP; i++) {
                 System.out.println("TOP: " + ger0.get(i));
             }
@@ -227,9 +210,9 @@ public class SirKazzio extends AdvancedRobot {
 
     public void calcularFitness() {
 
-        for (int i = 0; i < POP_SIZE; i++) {
-            ger0.add(new Solution(pontos));
-        }
+        // for (int i = 0; i < POP_SIZE; i++) {
+        ger0.add(new Solution(pontos));
+        // }
     }
 
     /**
@@ -255,6 +238,23 @@ public class SirKazzio extends AdvancedRobot {
     public void onDeath(DeathEvent event) {
         super.onDeath(event); // Chama o método onDeath da superclasse
 
+        System.out.println("LISTA DE PONTOS DO ROBO " + pontos);
+
+        calcularFitness();
+
+        System.out.println("LISTA GER0:" + ger0);
+
+        // se existir dados no ger0
+        if (!ger0.isEmpty()) {
+            Collections.sort(ger0); // ordenar individuos com o fitness menor
+
+            try {
+                System.out.println("Ronda: " + (getRoundNum() + 1) + ", Best Fitness: " +
+                        ger0.get(0).getFitnessFunction() + "\n");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     // #region MOVIMENTAR O ROBO
@@ -391,7 +391,7 @@ public class SirKazzio extends AdvancedRobot {
     public void onScannedRobot(ScannedRobotEvent event) {
         super.onScannedRobot(event); // Chama o método onScannedRobot da superclasse
 
-        System.out.println("INIMIGO ENCONTRADO: " + event.getName());
+        // System.out.println("INIMIGO ENCONTRADO: " + event.getName());
 
         // coordenadas do ponto onde o inimigo está em relação ao robô
         Point2D.Double ponto = getCoordenadasInimigo(this, event.getBearing(), event.getDistance());
