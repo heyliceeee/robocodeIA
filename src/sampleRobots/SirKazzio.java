@@ -4,7 +4,6 @@ import robocode.AdvancedRobot;
 import robocode.DeathEvent;
 import robocode.HitWallEvent;
 import robocode.RobotDeathEvent;
-import robocode.RobotStatus;
 import robocode.ScannedRobotEvent;
 import robocode.WinEvent;
 import utils.Utils;
@@ -34,7 +33,7 @@ public class SirKazzio extends AdvancedRobot {
      * taxa de mutação controla a probabilidade de que um gene em um cromossomo
      * sofra uma mutação durante a reprodução
      */
-    public static final int MUTATION_RATE = 2;
+    public static final int MUTATION_RATE = 4;
 
     /**
      * tamanho da população
@@ -138,41 +137,37 @@ public class SirKazzio extends AdvancedRobot {
                     // Seleção + Reprodução
                     // Estratégia: manter os top POPHETERARY soluções, gerar POPMUTATION
                     // por mutação e POPCROSS por cruzamento
-                    novaGer = new ArrayList<>();
+                    novaGer = new ArrayList<Solution>();
 
                     // Manter o top POPHETERARY
                     // Manter o top POP_HEREDITARY
-                    for (int k = 0; k < (ger0.size() / 2); k++) {
+                    for (int k = 0; k < (ger0.size() == 1 ? 1 : ger0.size() / 2); k++) {
                         novaGer.add(ger0.get(k)); // adicionar à nova geração
                     }
 
                     // Mutação das top POPMUTATION
-                    for (int k = 0; k < (ger0.size() / 2); k++) {
+                    for (int k = 0; k < (ger0.size() == 1 ? 1 : ger0.size() / 2); k++) {
                         Solution copia = new Solution(ger0.get(k)); // deep copy
 
                         copia.mutate(); // mutacao da cópia
                         novaGer.add(copia); // adicionar à nova geração
                     }
 
-                    System.out.println("ger0 AFTER MUTATE: " + ger0);
-
                     // Gerar POPCROSS por cruzamento com base nas top POPCROSS Mutação é
                     // feita entre cada duas soluções consecutivas, poderiam ser escolhidas
                     // random...
-                    for (int k = 0; k < (ger0.size() / 2); k += 2) {
+                    for (int k = 1; k + 1 < ger0.size(); k += 2) {
                         Solution pai = new Solution(ger0.get(k)); // deep copy
                         Solution mae = new Solution(ger0.get(k + 1)); // deep copy
 
                         Solution[] filhos = pai.cross(mae); // cruzamento
 
                         novaGer.add(filhos[0]);
-                        novaGer.add(filhos[1]);
+                        // novaGer.add(filhos[1]);
                     }
 
                     // atualizar geração para a próxima iteração
                     ger0 = novaGer;
-
-                    System.out.println("ger0 AFTER CROSS: " + ger0);
                 }
 
                 this.setTurnRadarRight(360);
@@ -243,7 +238,7 @@ public class SirKazzio extends AdvancedRobot {
     public void onDeath(DeathEvent event) {
         super.onDeath(event); // Chama o método onDeath da superclasse
 
-        System.out.println("LISTA DE PONTOS DO ROBO " + pontos);
+        // System.out.println("LISTA DE PONTOS DO ROBO " + pontos);
 
         calcularFitness();
 
@@ -260,19 +255,21 @@ public class SirKazzio extends AdvancedRobot {
                 e.printStackTrace();
             }
         }
+
     }
 
     @Override
     public void onWin(WinEvent event) {
         super.onWin(event); // Chama o método onDeath da superclasse
 
-        System.out.println("LISTA DE PONTOS DO ROBO " + pontos);
+        // System.out.println("LISTA DE PONTOS DO ROBO " + pontos);
 
         calcularFitness();
 
         System.out.println("LISTA GER0:" + ger0);
 
         // se existir dados no ger0
+
         if (!ger0.isEmpty()) {
             Collections.sort(ger0); // ordenar individuos com o fitness menor
 

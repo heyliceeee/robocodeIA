@@ -27,6 +27,8 @@ public class Solution implements Comparable<Solution> {
 
             this.pontosSolucao.add(sol.getPoints().get(i));
         }
+
+        this.pontosIntermedios = this.pontosSolucao.size() - 2;
     }
 
     public Solution(ArrayList<IPoint> pontos) {
@@ -55,26 +57,57 @@ public class Solution implements Comparable<Solution> {
      * ponto
      */
     public void mutate() {
-        for (int i = 0; i < SirKazzio.MUTATION_RATE; i++) {
-            Random rand = new Random();
+        Random rand = new Random();
 
-            Point randomPointInventado = new Point(rand.nextInt(SirKazzio.conf.getWidth()),
-                    rand.nextInt(SirKazzio.conf.getHeight())); // ponto aleatorio inventado
+        boolean addPoints = rand.nextBoolean(); // decide random se adicionar ou remover pontos
 
-            int randomIndex = rand.nextInt(pontosSolucao.size()); // ponto a alterar aleatorio
+        if (addPoints) {
+            for (int i = 0; i < SirKazzio.MUTATION_RATE; i++) {
 
-            this.pontosSolucao.add(randomIndex, randomPointInventado);
+                // Adiciona um novo ponto random
+                Point randomPointInventado = new Point(rand.nextInt(SirKazzio.conf.getWidth()),
+                        rand.nextInt(SirKazzio.conf.getHeight())); // ponto random inventado
+
+                pontosSolucao.add(randomPointInventado);
+            }
+
+            pontosIntermedios = pontosSolucao.size() - 2;
+        } else {
+            // remover um ponto random, se houver pontos suficientes na lista
+            for (int i = 0; i < SirKazzio.MUTATION_RATE && !pontosSolucao.isEmpty(); i++) {
+                int randomIndex = rand.nextInt(pontosSolucao.size()); // ponto a alterar random
+
+                pontosSolucao.remove(randomIndex);
+            }
         }
     }
 
-    // TODO
     /**
      * realizar o cruzamento entre esta solução e outra solução
      */
     public Solution[] cross(Solution mae) {
         Random rand = new Random();
 
-        Solution[] filhos = new Solution[] { this, mae };
+        int pos = (!pontosSolucao.isEmpty()) ? rand.nextInt(pontosSolucao.size()) : 0; // gerar uma posicao random
+
+        Solution filho1 = new Solution(this.pontosSolucao); // criar um novo filho 1 com os pontos deste objeto
+        Solution filho2 = new Solution(mae.pontosSolucao); // criar um novo filho 2 com os pontos da mãe
+
+        for (int i = pos; i < Math.min(pontosSolucao.size(), mae.pontosSolucao.size()); i++) // preencher o filho 1
+        {
+            filho1.getPoints().set(i, mae.getPoints().get(i));
+
+            filho1.pontosIntermedios = filho1.getPoints().size() - 2;
+        }
+
+        for (int i = pos; i < Math.min(mae.pontosSolucao.size(), pontosSolucao.size()); i++) // preencher o filho 2
+        {
+            filho2.getPoints().set(i, this.pontosSolucao.get(i));
+
+            filho2.pontosIntermedios = filho1.getPoints().size() - 2;
+        }
+
+        Solution[] filhos = new Solution[] { filho1, filho2 };
 
         return filhos;
     }
