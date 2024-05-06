@@ -6,6 +6,7 @@ import robocode.HitWallEvent;
 import robocode.RobotDeathEvent;
 import robocode.RobotStatus;
 import robocode.ScannedRobotEvent;
+import robocode.WinEvent;
 import utils.Utils;
 
 import java.awt.*;
@@ -79,7 +80,7 @@ public class SirKazzio extends AdvancedRobot {
     /**
      * configurações
      */
-    private UIConfiguration conf;
+    public static UIConfiguration conf;
 
     /**
      * lista de pontos do mapa
@@ -153,6 +154,8 @@ public class SirKazzio extends AdvancedRobot {
                         novaGer.add(copia); // adicionar à nova geração
                     }
 
+                    System.out.println("ger0 AFTER MUTATE: " + ger0);
+
                     // Gerar POPCROSS por cruzamento com base nas top POPCROSS Mutação é
                     // feita entre cada duas soluções consecutivas, poderiam ser escolhidas
                     // random...
@@ -168,6 +171,8 @@ public class SirKazzio extends AdvancedRobot {
 
                     // atualizar geração para a próxima iteração
                     ger0 = novaGer;
+
+                    System.out.println("ger0 AFTER CROSS: " + ger0);
                 }
 
                 this.setTurnRadarRight(360);
@@ -193,7 +198,7 @@ public class SirKazzio extends AdvancedRobot {
             }
             // }
 
-            Collections.sort(ger0, Collections.reverseOrder());
+            Collections.sort(ger0);
 
             // apos de percorrer as rondas todas, mostra os top getTop()
             for (int i = 0; i < TOP; i++) {
@@ -224,9 +229,9 @@ public class SirKazzio extends AdvancedRobot {
     public ArrayList<Solution> inicializarGeracao0() {
         ArrayList<Solution> gen0 = new ArrayList<Solution>();
 
-        for (int i = 0; i < POP_SIZE; i++) {
-            gen0.add(new Solution());
-        }
+        // for (int i = 0; i < POP_SIZE; i++) {
+        // gen0.add(new Solution());
+        // }
 
         return gen0;
     }
@@ -237,6 +242,29 @@ public class SirKazzio extends AdvancedRobot {
     @Override
     public void onDeath(DeathEvent event) {
         super.onDeath(event); // Chama o método onDeath da superclasse
+
+        System.out.println("LISTA DE PONTOS DO ROBO " + pontos);
+
+        calcularFitness();
+
+        System.out.println("LISTA GER0:" + ger0);
+
+        // se existir dados no ger0
+        if (!ger0.isEmpty()) {
+            Collections.sort(ger0); // ordenar individuos com o fitness menor
+
+            try {
+                System.out.println("Ronda: " + (getRoundNum() + 1) + ", Best Fitness: " +
+                        ger0.get(0).getFitnessFunction() + "\n");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public void onWin(WinEvent event) {
+        super.onWin(event); // Chama o método onDeath da superclasse
 
         System.out.println("LISTA DE PONTOS DO ROBO " + pontos);
 
