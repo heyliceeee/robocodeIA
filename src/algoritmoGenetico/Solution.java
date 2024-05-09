@@ -1,9 +1,7 @@
 package algoritmoGenetico;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
-
 import impl.Point;
 import interf.IPoint;
 import sampleRobots.SirKazzio;
@@ -12,6 +10,7 @@ public class Solution implements Comparable<Solution> {
 
     private ArrayList<IPoint> pontosSolucao; // o conteúdo da solução
     private int pontosIntermedios = 0; // total de letras iguais durante a funcao de fitness
+    private double danoLevado = -0.1;
 
     /**
      * construtor de copia
@@ -42,7 +41,26 @@ public class Solution implements Comparable<Solution> {
 
     public int getFitnessFunction() {
 
-        return this.pontosIntermedios;
+        double pesoDanoLevado = 0.8; // Peso do dano levado
+        double pesoPontosIntermediarios = 0.2; // Peso dos pontos intermediários
+
+        double fitnessDano = 1.0 / (1.0 + this.danoLevado); // Quanto menor o dano, melhor
+        double fitnessPontos = 1.0 / (1.0 + this.pontosIntermedios); // Quanto menos pontos intermediários, melhor
+
+        double fitnessTotal = (pesoDanoLevado * fitnessDano) + (pesoPontosIntermediarios * fitnessPontos);
+
+        return (int) (fitnessTotal * 1000);
+
+        // return this.danoLevado;
+    }
+
+    public double getDanoLevado() {
+
+        return this.danoLevado;
+    }
+
+    public void setDanoLevado(double danoLevado) {
+        this.danoLevado = danoLevado;
     }
 
     // TODO: FAZER UM GRAFICO DE EVOLUCAO DE CADA AMOSTRA DE POPULAÇÃO
@@ -82,34 +100,57 @@ public class Solution implements Comparable<Solution> {
         }
     }
 
+
+    
+    public int getPontosIntermedios() {
+        return pontosIntermedios;
+    }
+
     /**
      * realizar o cruzamento entre esta solução e outra solução
      */
     public Solution[] cross(Solution mae) {
+
+        if (pontosSolucao.isEmpty() || mae.pontosSolucao.isEmpty()) {
+            // Pelo menos uma das listas está vazia
+            throw new IllegalArgumentException("Uma das listas está vazia");
+        }
+
         Random rand = new Random();
 
-        int pos = (!pontosSolucao.isEmpty()) ? rand.nextInt(pontosSolucao.size()) : 0; // gerar uma posicao random
+        // gerar uma posicao random
+        int pos;
 
-        Solution filho1 = new Solution(this.pontosSolucao); // criar um novo filho 1 com os pontos deste objeto
-        Solution filho2 = new Solution(mae.pontosSolucao); // criar um novo filho 2 com os pontos da mãe
-
-        for (int i = pos; i < Math.min(pontosSolucao.size(), mae.pontosSolucao.size()); i++) // preencher o filho 1
-        {
-            filho1.getPoints().set(i, mae.getPoints().get(i));
-
-            filho1.pontosIntermedios = filho1.getPoints().size() - 2;
+        if (!pontosSolucao.isEmpty() && !mae.pontosSolucao.isEmpty()) {
+            pos = rand.nextInt(Math.min(pontosSolucao.size(), mae.pontosSolucao.size()));
+        } else if (!pontosSolucao.isEmpty()) {
+            pos = rand.nextInt(pontosSolucao.size());
+        } else if (!mae.pontosSolucao.isEmpty()) {
+            pos = rand.nextInt(mae.pontosSolucao.size());
+        } else {
+            // Caso ambas as listas estejam vazias, você precisa decidir o que fazer aqui
+            // Por exemplo, você pode lançar uma exceção ou retornar um valor padrão
+            throw new IllegalArgumentException("Ambas as listas estão vazias");
         }
 
-        for (int i = pos; i < Math.min(mae.pontosSolucao.size(), pontosSolucao.size()); i++) // preencher o filho 2
-        {
-            filho2.getPoints().set(i, this.pontosSolucao.get(i));
+        Solution filho1 = new Solution(new ArrayList<>(this.pontosSolucao)); // Cria uma cópia dos pontos deste objeto
+        Solution filho2 = new Solution(new ArrayList<>(mae.pontosSolucao)); // Cria uma cópia dos pontos da mãe
 
-            filho2.pontosIntermedios = filho1.getPoints().size() - 2;
+        for (int i = 0; i < Math.min(pontosSolucao.size(), mae.pontosSolucao.size()); i++) {
+            if (i >= pos) {
+                filho1.getPoints().set(i, mae.getPoints().get(i));
+            }
+
+            if (i >= pos) {
+                filho2.getPoints().set(i, this.pontosSolucao.get(i));
+            }
         }
 
-        Solution[] filhos = new Solution[] { filho1, filho2 };
+        // Atualiza o número de pontos intermédios dos filhos
+        filho1.pontosIntermedios = filho1.getPoints().size() - 2;
+        filho2.pontosIntermedios = filho2.getPoints().size() - 2;
 
-        return filhos;
+        return new Solution[] { filho1, filho2 };
     }
 
     /**
@@ -120,11 +161,27 @@ public class Solution implements Comparable<Solution> {
      */
     @Override
     public int compareTo(Solution other) {
-        return Integer.compare(this.getFitnessFunction(), other.getFitnessFunction());
+        return Integer.compare(other.getFitnessFunction(), this.getFitnessFunction());
     }
 
     @Override
     public String toString() {
-        return "Solution [pontos=" + pontosSolucao + ", getFitnessFunction()=" + getFitnessFunction() + "]";
+        return "Solution [pontos =" + pontosSolucao
+                + ", funcao fitness = " + getFitnessFunction()
+                + ", n0 pontos intermediarios = " + getPontosIntermedios()
+                + ", dano levado = " + getDanoLevado()
+                + "]";
     }
+
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof Solution)) {
+            return false;
+        }
+        Solution other = (Solution) obj;
+        return this.pontosSolucao.equals(other.pontosSolucao);
+    }
+
 }
