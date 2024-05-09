@@ -33,35 +33,35 @@ public class SirKazzio extends AdvancedRobot {
      * taxa de mutação controla a probabilidade de que um gene em um cromossomo
      * sofra uma mutação durante a reprodução
      */
-    public static final int MUTATION_RATE = 4;
+    public static final int MUTATION_RATE = 2;
 
     /**
      * tamanho da população
      */
-    public static final int POP_SIZE = 100;
+    public static final int POP_SIZE = 10;
 
     /**
      * percentagem da população que será selecionada para a reprodução com base no
      * seu fitness
      */
-    public static final int POP_HEREDITARY = 50;
+    public static final int POP_HEREDITARY = 5;
 
     /**
      * percentagem de população que sofrerá mutação após a reprodução
      */
-    public static final int POP_MUTATION = 20;
+    public static final int POP_MUTATION = 2;
 
     /**
      * percentagem da população que será criada por cruzamento entre indivíduos
      * selecionados para reprodução
      */
-    public static final int POP_CROSS = 30;
+    public static final int POP_CROSS = 3;
 
     /**
      * número máximo de gerações que o algoritmo genético irá executar antes de
      * parar
      */
-    public static final int MAX_ITERATIONS = 10;
+    public static final int MAX_ITERATIONS = 1;
 
     /**
      * número de melhores indivíduos que serão mantidos inalterados na próxima
@@ -85,6 +85,11 @@ public class SirKazzio extends AdvancedRobot {
      * lista de pontos do mapa
      */
     private ArrayList<IPoint> pontos;
+
+    /**
+     * lista de pontos percorridos pelo robo
+     */
+    public static List<Solution> pontosPercorridos = new ArrayList<>();
 
     /**
      * associar inimigos a retângulos e permitir remover retângulos de inimigos já
@@ -122,97 +127,111 @@ public class SirKazzio extends AdvancedRobot {
         inimigos = new HashMap<>();
         conf = new UIConfiguration((int) getBattleFieldWidth(), (int) getBattleFieldHeight(), obstaculos); // tamanho
                                                                                                            // mapa
-
-        // TODO: ARRANJAR! TEM DE ALGUMA FORMA GUARDAR TODOS OS PONTOS E O TOTAL PONTOS
-        // INTERMEDIOS
-        // ger0 = inicializarGeracao0(); // solucao
+        ger0 = inicializarGeracao0(); // solucao
         // #endregion
 
-        while (true) {
+        // while (true) {
 
-            for (int j = getRoundNum(); j < getNumRounds();) {
-                // quando nao estiver na primeira ronda, pode fazer cruzamentos, mutacoes e
-                // reproducoes
-                if (j > 0) {
-                    // Seleção + Reprodução
-                    // Estratégia: manter os top POPHETERARY soluções, gerar POPMUTATION
-                    // por mutação e POPCROSS por cruzamento
-                    novaGer = new ArrayList<Solution>();
+        for (int j = getRoundNum(); j < getNumRounds();) {
+            // quando nao estiver na primeira ronda, pode fazer cruzamentos, mutacoes e
+            // reproducoes
+            if (j > 0) {
+                // Seleção + Reprodução
+                // Estratégia: manter os top POPHETERARY soluções, gerar POPMUTATION
+                // por mutação e POPCROSS por cruzamento
+                novaGer = new ArrayList<Solution>();
 
-                    // Manter o top POPHETERARY
-                    // Manter o top POP_HEREDITARY
-                    for (int k = 0; k < (ger0.size() == 1 ? 1 : ger0.size() / 2); k++) {
-                        novaGer.add(ger0.get(k)); // adicionar à nova geração
-                    }
+                // Manter o top POPHETERARY
+                // Manter o top POP_HEREDITARY
+                // Manter o top POP_HEREDITARY
+                for (int k = 0; k < ((ger0.size() == 1) ? 1 : 2); k++) {
+                    novaGer.add(ger0.get(k)); // adicionar à nova geração
+                }
 
-                    // Mutação das top POPMUTATION
-                    for (int k = 0; k < (ger0.size() == 1 ? 1 : ger0.size() / 2); k++) {
-                        Solution copia = new Solution(ger0.get(k)); // deep copy
+                // Mutação das top POPMUTATION
+                for (int k = 0; k < ((ger0.size() == 1) ? 1 : 1); k++) {
+                    Solution copia = new Solution(ger0.get(k)); // deep copy
 
-                        copia.mutate(); // mutacao da cópia
-                        novaGer.add(copia); // adicionar à nova geração
-                    }
+                    copia.mutate(); // mutacao da cópia
+                    novaGer.add(copia); // adicionar à nova geração
+                }
 
-                    // Gerar POPCROSS por cruzamento com base nas top POPCROSS Mutação é
-                    // feita entre cada duas soluções consecutivas, poderiam ser escolhidas
-                    // random...
-                    for (int k = 1; k + 1 < ger0.size(); k += 2) {
-                        Solution pai = new Solution(ger0.get(k)); // deep copy
-                        Solution mae = new Solution(ger0.get(k + 1)); // deep copy
+                // Gerar POPCROSS por cruzamento com base nas top POPCROSS Mutação é
+                // feita entre cada duas soluções consecutivas, poderiam ser escolhidas
+                // random...
+                for (int k = 0; k < (ger0.size() - 1); k += 2) {
+                    Solution pai = new Solution(ger0.get(k)); // deep copy
+                    Solution mae = new Solution(ger0.get(k + 1)); // deep copy
 
-                        Solution[] filhos = pai.cross(mae); // cruzamento
+                    // Verifica se pai e mae têm pelo menos um ponto
+                    if (!pai.getPoints().isEmpty() && !mae.getPoints().isEmpty()) {
+                        Solution[] filhos = pai.cross(mae);
 
                         novaGer.add(filhos[0]);
-                        // novaGer.add(filhos[1]);
+                        novaGer.add(filhos[1]);
                     }
-
-                    // atualizar geração para a próxima iteração
-                    ger0 = novaGer;
                 }
 
-                this.setTurnRadarRight(360);
-
-                // Se não há um caminho atual ou o robô chegou ao fim do caminho atual
-                if (pontoAtual == -1 || pontoAtual >= pontos.size()) {
-                    // Gera um novo caminho aleatório
-                    gerarCaminhoRandom();
-                }
-
-                // Se ainda há pontos no caminho, move-se em direção ao próximo ponto
-                if (pontoAtual >= 0 && pontoAtual < pontos.size()) {
-                    IPoint ponto = pontos.get(pontoAtual);
-                    // Se já está no ponto ou lá perto...
-                    if (Utils.getDistance(this, ponto.getX(), ponto.getY()) < 2) {
-                        pontoAtual++;
-                    }
-                    // Move-se em direção ao próximo ponto no caminho
-                    RoboVaiPara(this, ponto.getX(), ponto.getY());
-                }
-
-                this.execute();
+                // atualizar geração para a próxima iteração
+                ger0 = novaGer;
             }
-            // }
 
-            Collections.sort(ger0);
+            this.setTurnRadarRight(360);
 
-            // apos de percorrer as rondas todas, mostra os top getTop()
-            for (int i = 0; i < TOP; i++) {
-                System.out.println("TOP: " + ger0.get(i));
+            // Se não há um caminho atual ou o robô chegou ao fim do caminho atual
+            if (pontoAtual == -1 || pontoAtual >= pontos.size()) {
+                // Gera um novo caminho aleatório
+                gerarCaminhoRandom();
             }
+
+            // Se ainda há pontos no caminho, move-se em direção ao próximo ponto
+            if (pontoAtual >= 0 && pontoAtual < pontos.size()) {
+                IPoint ponto = pontos.get(pontoAtual);
+                // Se já está no ponto ou lá perto...
+                if (Utils.getDistance(this, ponto.getX(), ponto.getY()) < 2) {
+                    pontoAtual++;
+                }
+                // Move-se em direção ao próximo ponto no caminho
+                RoboVaiPara(this, ponto.getX(), ponto.getY());
+
+                // atualizar dano que o robo levou
+                atualizarDanoLevado(this, ponto);
+            }
+
+            this.execute();
         }
+        // }
+
+        // Collections.sort(ger0);
+
+        // apos de percorrer as rondas todas, mostra os top getTop()
+        // for (int i = 0; i < TOP; i++) {
+        // System.out.println("TOP: " + ger0.get(i));
+        // }
+        // }
     }
 
-    /**
-     * definir a funcao fitness
-     * 
-     * @return
-     */
+    public void atualizarDanoLevado(AdvancedRobot robo, IPoint ponto) {
+        double dano = robo.getEnergy();
 
-    public void calcularFitness() {
+        // Obtém a solução atual
+        Solution solucaoAtual = new Solution(ger0.get(0));
 
-        // for (int i = 0; i < POP_SIZE; i++) {
-        ger0.add(new Solution(pontos));
-        // }
+        // Itera sobre todos os pontos da solução
+        for (IPoint pontoSolucao : solucaoAtual.getPoints()) {
+            // Verifica se o ponto da solução corresponde ao ponto fornecido
+            if (pontoSolucao.getX() == ponto.getX() && pontoSolucao.getY() == ponto.getY()) {
+                // Atualiza o valor de danoLevado para o ponto encontrado
+                solucaoAtual.setDanoLevado(dano);
+
+                // verificar se a solucao nao existe na lista
+                if (!pontosPercorridos.contains(solucaoAtual)) {
+                    pontosPercorridos.add(solucaoAtual); // adicionar a lista de pontos percorridos pelo robo
+                }
+
+                break; // Termina o loop, pois o ponto foi encontrado e atualizado
+            }
+        }
     }
 
     /**
@@ -225,10 +244,33 @@ public class SirKazzio extends AdvancedRobot {
         ArrayList<Solution> gen0 = new ArrayList<Solution>();
 
         // for (int i = 0; i < POP_SIZE; i++) {
-        // gen0.add(new Solution());
+        // Gera um novo caminho aleatório e adiciona à lista de soluções da geração 0
+        Solution solucao = gerarCaminhoRandom();
+        gen0.add(solucao);
         // }
 
         return gen0;
+    }
+
+    /**
+     * terminou a ronda, mostra o melhor fitness até a ronda atual
+     */
+    public void terminouRonda() {
+        // System.out.println("LISTA DE PONTOS DO ROBO " + pontos);
+        Collections.sort(pontosPercorridos); // ordenar individuos com o fitness maior
+
+        System.out.println("PONTOS PERCORRIDOS: \n" + pontosPercorridos);
+
+        // se existir dados no pontosPercorridos
+
+        if (!pontosPercorridos.isEmpty()) {
+            try {
+                System.out.println("Ronda: " + (getRoundNum() + 1) + ", Best Fitness: " +
+                        pontosPercorridos.get(0).getFitnessFunction() + "\n");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     /**
@@ -238,48 +280,14 @@ public class SirKazzio extends AdvancedRobot {
     public void onDeath(DeathEvent event) {
         super.onDeath(event); // Chama o método onDeath da superclasse
 
-        // System.out.println("LISTA DE PONTOS DO ROBO " + pontos);
-
-        calcularFitness();
-
-        System.out.println("LISTA GER0:" + ger0);
-
-        // se existir dados no ger0
-        if (!ger0.isEmpty()) {
-            Collections.sort(ger0); // ordenar individuos com o fitness menor
-
-            try {
-                System.out.println("Ronda: " + (getRoundNum() + 1) + ", Best Fitness: " +
-                        ger0.get(0).getFitnessFunction() + "\n");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
+        terminouRonda();
     }
 
     @Override
     public void onWin(WinEvent event) {
         super.onWin(event); // Chama o método onDeath da superclasse
 
-        // System.out.println("LISTA DE PONTOS DO ROBO " + pontos);
-
-        calcularFitness();
-
-        System.out.println("LISTA GER0:" + ger0);
-
-        // se existir dados no ger0
-
-        if (!ger0.isEmpty()) {
-            Collections.sort(ger0); // ordenar individuos com o fitness menor
-
-            try {
-                System.out.println("Ronda: " + (getRoundNum() + 1) + ", Best Fitness: " +
-                        ger0.get(0).getFitnessFunction() + "\n");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        terminouRonda();
     }
 
     // #region MOVIMENTAR O ROBO
@@ -287,7 +295,7 @@ public class SirKazzio extends AdvancedRobot {
     /**
      * Gera um novo caminho aleatório.
      */
-    private void gerarCaminhoRandom() {
+    private Solution gerarCaminhoRandom() {
         conf.setStart(new Point((int) this.getX(), (int) this.getY()));
         // Define o ponto de destino como uma posição aleatória no campo de batalha
         conf.setEnd(new Point(rand.nextInt(conf.getWidth()), rand.nextInt(conf.getHeight())));
@@ -304,6 +312,8 @@ public class SirKazzio extends AdvancedRobot {
         }
         pontos.add(conf.getEnd()); // Adiciona o ponto de destino
         pontoAtual = 0; // Define o ponto atual como o ponto de partida
+
+        return new Solution(pontos);
     }
 
     /**
