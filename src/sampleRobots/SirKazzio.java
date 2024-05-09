@@ -1,8 +1,10 @@
 package sampleRobots;
 
 import robocode.AdvancedRobot;
+import robocode.BattleEndedEvent;
 import robocode.DeathEvent;
 import robocode.HitWallEvent;
+import robocode.RobocodeFileOutputStream;
 import robocode.RobotDeathEvent;
 import robocode.ScannedRobotEvent;
 import robocode.WinEvent;
@@ -11,6 +13,7 @@ import utils.Utils;
 import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.geom.Point2D.Double;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -128,9 +131,8 @@ public class SirKazzio extends AdvancedRobot {
         conf = new UIConfiguration((int) getBattleFieldWidth(), (int) getBattleFieldHeight(), obstaculos); // tamanho
                                                                                                            // mapa
         ger0 = inicializarGeracao0(); // solucao
-        // #endregion
 
-        // while (true) {
+        // #endregion
 
         for (int j = getRoundNum(); j < getNumRounds();) {
             // quando nao estiver na primeira ronda, pode fazer cruzamentos, mutacoes e
@@ -186,6 +188,32 @@ public class SirKazzio extends AdvancedRobot {
         }
     }
 
+    @Override
+    public void onBattleEnded(BattleEndedEvent event) {
+
+        try {
+            ordenarListaPorRonda();
+
+            RobocodeFileOutputStream outputStream = new RobocodeFileOutputStream(getDataFile("movimentacaoGraph.txt"));
+
+            for (Solution solucao : pontosPercorridos) {
+
+                outputStream.write((solucao.getFitnessFunction() + System.lineSeparator()).getBytes());
+            }
+            outputStream.close();
+            System.out.println("Lista exportada com sucesso para o arquivo: movimentacaoGraph.txt");
+
+        } catch (IOException e) {
+            System.err.println("Erro ao exportar lista para arquivo: " + e.getMessage());
+        }
+    }
+
+    private void ordenarListaPorRonda() {
+        Collections.sort(pontosPercorridos, (s1, s2) -> Integer.compare(s1.getRonda(), s2.getRonda()));
+    }
+
+    // #region MOVIMENTAR O ROBO
+
     public void moverRobo() {
         this.setTurnRadarRight(360);
 
@@ -222,6 +250,7 @@ public class SirKazzio extends AdvancedRobot {
             if (pontoSolucao.getX() == ponto.getX() && pontoSolucao.getY() == ponto.getY()) {
                 // Atualiza o valor de danoLevado para o ponto encontrado
                 solucaoAtual.setDanoLevado(dano);
+                solucaoAtual.setRonda(getRoundNum());
 
                 // verificar se a solucao nao existe na lista
                 if (!pontosPercorridos.contains(solucaoAtual)) {
@@ -288,8 +317,6 @@ public class SirKazzio extends AdvancedRobot {
 
         terminouRonda();
     }
-
-    // #region MOVIMENTAR O ROBO
 
     /**
      * Gera um novo caminho aleatório.

@@ -11,6 +11,7 @@ public class Solution implements Comparable<Solution> {
     private ArrayList<IPoint> pontosSolucao; // o conteúdo da solução
     private int pontosIntermedios = 0; // total de letras iguais durante a funcao de fitness
     private double danoLevado = -0.1;
+    private int ronda = 0;
 
     /**
      * construtor de copia
@@ -63,7 +64,13 @@ public class Solution implements Comparable<Solution> {
         this.danoLevado = danoLevado;
     }
 
-    // TODO: FAZER UM GRAFICO DE EVOLUCAO DE CADA AMOSTRA DE POPULAÇÃO
+    public int getRonda() {
+        return ronda;
+    }
+
+    public void setRonda(int ronda) {
+        this.ronda = ronda;
+    }
 
     /**
      * implementar a mutação na solução atual.
@@ -100,8 +107,6 @@ public class Solution implements Comparable<Solution> {
         }
     }
 
-
-    
     public int getPontosIntermedios() {
         return pontosIntermedios;
     }
@@ -167,6 +172,7 @@ public class Solution implements Comparable<Solution> {
     @Override
     public String toString() {
         return "Solution [pontos =" + pontosSolucao
+                + ", ronda: " + getRonda()
                 + ", funcao fitness = " + getFitnessFunction()
                 + ", n0 pontos intermediarios = " + getPontosIntermedios()
                 + ", dano levado = " + getDanoLevado()
