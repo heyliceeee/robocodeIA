@@ -174,41 +174,40 @@ public class SirKazzio extends AdvancedRobot {
 
                 // atualizar geração para a próxima iteração
                 ger0 = novaGer;
+
+                // Movendo o robô com base nos novos caminhos
+                moverRobo();
             }
 
-            this.setTurnRadarRight(360);
-
-            // Se não há um caminho atual ou o robô chegou ao fim do caminho atual
-            if (pontoAtual == -1 || pontoAtual >= pontos.size()) {
-                // Gera um novo caminho aleatório
-                gerarCaminhoRandom();
-            }
-
-            // Se ainda há pontos no caminho, move-se em direção ao próximo ponto
-            if (pontoAtual >= 0 && pontoAtual < pontos.size()) {
-                IPoint ponto = pontos.get(pontoAtual);
-                // Se já está no ponto ou lá perto...
-                if (Utils.getDistance(this, ponto.getX(), ponto.getY()) < 2) {
-                    pontoAtual++;
-                }
-                // Move-se em direção ao próximo ponto no caminho
-                RoboVaiPara(this, ponto.getX(), ponto.getY());
-
-                // atualizar dano que o robo levou
-                atualizarDanoLevado(this, ponto);
-            }
+            // Movendo o robô com base nos caminhos atuais
+            moverRobo();
 
             this.execute();
         }
-        // }
+    }
 
-        // Collections.sort(ger0);
+    public void moverRobo() {
+        this.setTurnRadarRight(360);
 
-        // apos de percorrer as rondas todas, mostra os top getTop()
-        // for (int i = 0; i < TOP; i++) {
-        // System.out.println("TOP: " + ger0.get(i));
-        // }
-        // }
+        // Se não há um caminho atual ou o robô chegou ao fim do caminho atual
+        if (pontoAtual == -1 || pontoAtual >= pontos.size()) {
+            // Gera um novo caminho aleatório
+            gerarCaminhoRandom();
+        }
+
+        // Se ainda há pontos no caminho, move-se em direção ao próximo ponto
+        if (pontoAtual >= 0 && pontoAtual < pontos.size()) {
+            IPoint ponto = pontos.get(pontoAtual);
+            // Se já está no ponto ou lá perto...
+            if (Utils.getDistance(this, ponto.getX(), ponto.getY()) < 2) {
+                pontoAtual++;
+            }
+            // Move-se em direção ao próximo ponto no caminho
+            RoboVaiPara(this, ponto.getX(), ponto.getY());
+
+            // atualizar dano que o robo levou
+            atualizarDanoLevado(this, ponto);
+        }
     }
 
     public void atualizarDanoLevado(AdvancedRobot robo, IPoint ponto) {
