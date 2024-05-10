@@ -24,6 +24,9 @@ import algoritmoGenetico.Solution;
 import impl.Point;
 import impl.UIConfiguration;
 import interf.IPoint;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
 
 /**
  * SirkKazzio - a class by Alice Dias
@@ -198,7 +201,8 @@ public class SirKazzio extends AdvancedRobot {
 
             for (Solution solucao : pontosPercorridos) {
 
-                outputStream.write((solucao.getFitnessFunction() + System.lineSeparator()).getBytes());
+                outputStream.write((solucao.getFitnessFunction() +
+                        System.lineSeparator()).getBytes());
             }
             outputStream.close();
             System.out.println("Lista exportada com sucesso para o arquivo: movimentacaoGraph.txt");
