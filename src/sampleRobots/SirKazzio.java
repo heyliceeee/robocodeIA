@@ -70,10 +70,10 @@ public class SirKazzio extends AdvancedRobot {
     public static final int MAX_ITERATIONS = 1;
 
     /**
-     * número de melhores indivíduos que serão mantidos inalterados na próxima
+     * percentagem de melhores indivíduos que serão mantidos inalterados na próxima
      * geração. Eles são selecionados com base em seu fitness.
      */
-    public static final int TOP = 2;
+    public static final int TOP = 50;
 
     // #endregion
 
@@ -194,6 +194,16 @@ public class SirKazzio extends AdvancedRobot {
     @Override
     public void onBattleEnded(BattleEndedEvent event) {
 
+        exportarMovimentacaoGraficoFicheiro();
+        exportarTopMovimentosFicheiro();
+    }
+
+    // #region MOVIMENTAR O ROBO
+
+    /**
+     * exportar os movimentos realizados na partida, para um .txt
+     */
+    private void exportarMovimentacaoGraficoFicheiro() {
         try {
             ordenarListaPorRonda();
 
@@ -212,11 +222,44 @@ public class SirKazzio extends AdvancedRobot {
         }
     }
 
+    /**
+     * exportar os top movimentos realizados na partida, para um .txt
+     */
+    private void exportarTopMovimentosFicheiro() {
+        try {
+            ordenarListaPorFitness();
+
+            RobocodeFileOutputStream outputStream = new RobocodeFileOutputStream(getDataFile("movimentacaoTop.txt"));
+
+            int i = 0;
+
+            for (Solution solucao : pontosPercorridos) {
+
+                outputStream.write((solucao +
+                        System.lineSeparator()).getBytes());
+
+                i++;
+
+                if (i >= (pontosPercorridos.size() * TOP / 100)) {
+                    break;
+                }
+            }
+
+            outputStream.close();
+            System.out.println("Lista exportada com sucesso para o arquivo: movimentacaoTop.txt");
+
+        } catch (IOException e) {
+            System.err.println("Erro ao exportar lista para arquivo: " + e.getMessage());
+        }
+    }
+
     private void ordenarListaPorRonda() {
         Collections.sort(pontosPercorridos, (s1, s2) -> Integer.compare(s1.getRonda(), s2.getRonda()));
     }
 
-    // #region MOVIMENTAR O ROBO
+    private void ordenarListaPorFitness() {
+        Collections.sort(pontosPercorridos);
+    }
 
     public void moverRobo() {
         this.setTurnRadarRight(360);
