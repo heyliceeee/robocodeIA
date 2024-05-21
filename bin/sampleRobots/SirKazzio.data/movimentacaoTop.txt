@@ -1,5 +1,0 @@
-Solution [pontos =[(509, 508), (768, 149)], ronda: 0, funcao fitness = 207, n0 pontos intermediarios = 0, dano levado = 100.0]
-Solution [pontos =[(611, 443), (419, 83), (172, 261)], ronda: 3, funcao fitness = 107, n0 pontos intermediarios = 1, dano levado = 100.0]
-Solution [pontos =[(183, 326), (338, 87), (388, 507), (640, 219)], ronda: 6, funcao fitness = 74, n0 pontos intermediarios = 2, dano levado = 100.0]
-Solution [pontos =[(292, 201), (239, 100), (108, 230), (7, 253), (76, 583)], ronda: 1, funcao fitness = 57, n0 pontos intermediarios = 3, dano levado = 100.0]
-Solution [pontos =[(684, 376), (273, 568), (656, 75), (674, 35), (522, 446)], ronda: 2, funcao fitness = 57, n0 pontos intermediarios = 3, dano levado = 100.0]

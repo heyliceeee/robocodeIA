@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
-import algoritmoGenetico.Solution;
 import impl.Point;
 import impl.UIConfiguration;
 import interf.IPoint;
@@ -93,32 +92,10 @@ public class SirKazzio extends AdvancedRobot {
     private ArrayList<IPoint> pontos;
 
     /**
-     * lista de pontos percorridos pelo robo
-     */
-    public static List<Solution> pontosPercorridos = new ArrayList<>();
-
-    /**
      * associar inimigos a retângulos e permitir remover retângulos de inimigos já
      * desatualizados
      */
     private HashMap<String, Rectangle> inimigos;
-
-    /**
-     * ponto atual para o qual o robo está a se dirigir
-     */
-    private int pontoAtual = -1;
-
-    Random rand = new Random();
-
-    /**
-     * soluções da primeira geracao
-     */
-    public static ArrayList<Solution> ger0 = new ArrayList<>();
-
-    /**
-     * soluções da nova geracao
-     */
-    public static ArrayList<Solution> novaGer;
 
     // #endregion
 
@@ -129,223 +106,25 @@ public class SirKazzio extends AdvancedRobot {
         customizarRobo();
 
         // #region inicializar
+
         obstaculos = new ArrayList<>();
         inimigos = new HashMap<>();
         conf = new UIConfiguration((int) getBattleFieldWidth(), (int) getBattleFieldHeight(), obstaculos); // tamanho
-                                                                                                           // mapa
-        ger0 = inicializarGeracao0(); // solucao
 
         // #endregion
 
-        for (int j = getRoundNum(); j < getNumRounds();) {
-            // quando nao estiver na primeira ronda, pode fazer cruzamentos, mutacoes e
-            // reproducoes
-            if (j > 0) {
-                // Seleção + Reprodução
-                // Estratégia: manter os top POPHETERARY soluções, gerar POPMUTATION
-                // por mutação e POPCROSS por cruzamento
-                novaGer = new ArrayList<Solution>();
-
-                // Manter o top POPHETERARY
-                // Manter o top POP_HEREDITARY
-                // Manter o top POP_HEREDITARY
-                for (int k = 0; k < ((ger0.size() == 1) ? 1 : 2); k++) {
-                    novaGer.add(ger0.get(k)); // adicionar à nova geração
-                }
-
-                // Mutação das top POPMUTATION
-                for (int k = 0; k < ((ger0.size() == 1) ? 1 : 1); k++) {
-                    Solution copia = new Solution(ger0.get(k)); // deep copy
-
-                    copia.mutate(); // mutacao da cópia
-                    novaGer.add(copia); // adicionar à nova geração
-                }
-
-                // Gerar POPCROSS por cruzamento com base nas top POPCROSS Mutação é
-                // feita entre cada duas soluções consecutivas, poderiam ser escolhidas
-                // random...
-                for (int k = 0; k < (ger0.size() - 1); k += 2) {
-                    Solution pai = new Solution(ger0.get(k)); // deep copy
-                    Solution mae = new Solution(ger0.get(k + 1)); // deep copy
-
-                    // Verifica se pai e mae têm pelo menos um ponto
-                    if (!pai.getPoints().isEmpty() && !mae.getPoints().isEmpty()) {
-                        Solution[] filhos = pai.cross(mae);
-
-                        novaGer.add(filhos[0]);
-                        novaGer.add(filhos[1]);
-                    }
-                }
-
-                // atualizar geração para a próxima iteração
-                ger0 = novaGer;
-
-                // Movendo o robô com base nos novos caminhos
-                moverRobo();
-            }
-
-            // Movendo o robô com base nos caminhos atuais
-            moverRobo();
-
+        while (true) {
+            setTurnRadarRight(360); // Continuously turn the radar
             this.execute();
         }
     }
 
+    /**
+     * a batalha terminou
+     */
     @Override
     public void onBattleEnded(BattleEndedEvent event) {
 
-        exportarMovimentacaoGraficoFicheiro();
-        exportarTopMovimentosFicheiro();
-    }
-
-    // #region MOVIMENTAR O ROBO
-
-    /**
-     * exportar os movimentos realizados na partida, para um .txt
-     */
-    private void exportarMovimentacaoGraficoFicheiro() {
-        try {
-            ordenarListaPorRonda();
-
-            RobocodeFileOutputStream outputStream = new RobocodeFileOutputStream(getDataFile("movimentacaoGraph.txt"));
-
-            for (Solution solucao : pontosPercorridos) {
-
-                outputStream.write((solucao.getFitnessFunction() +
-                        System.lineSeparator()).getBytes());
-            }
-            outputStream.close();
-            System.out.println("Lista exportada com sucesso para o arquivo: movimentacaoGraph.txt");
-
-        } catch (IOException e) {
-            System.err.println("Erro ao exportar lista para arquivo: " + e.getMessage());
-        }
-    }
-
-    /**
-     * exportar os top movimentos realizados na partida, para um .txt
-     */
-    private void exportarTopMovimentosFicheiro() {
-        try {
-            ordenarListaPorFitness();
-
-            RobocodeFileOutputStream outputStream = new RobocodeFileOutputStream(getDataFile("movimentacaoTop.txt"));
-
-            int i = 0;
-
-            for (Solution solucao : pontosPercorridos) {
-
-                outputStream.write((solucao +
-                        System.lineSeparator()).getBytes());
-
-                i++;
-
-                if (i >= (pontosPercorridos.size() * TOP / 100)) {
-                    break;
-                }
-            }
-
-            outputStream.close();
-            System.out.println("Lista exportada com sucesso para o arquivo: movimentacaoTop.txt");
-
-        } catch (IOException e) {
-            System.err.println("Erro ao exportar lista para arquivo: " + e.getMessage());
-        }
-    }
-
-    private void ordenarListaPorRonda() {
-        Collections.sort(pontosPercorridos, (s1, s2) -> Integer.compare(s1.getRonda(), s2.getRonda()));
-    }
-
-    private void ordenarListaPorFitness() {
-        Collections.sort(pontosPercorridos);
-    }
-
-    public void moverRobo() {
-        this.setTurnRadarRight(360);
-
-        // Se não há um caminho atual ou o robô chegou ao fim do caminho atual
-        if (pontoAtual == -1 || pontoAtual >= pontos.size()) {
-            // Gera um novo caminho aleatório
-            gerarCaminhoRandom();
-        }
-
-        // Se ainda há pontos no caminho, move-se em direção ao próximo ponto
-        if (pontoAtual >= 0 && pontoAtual < pontos.size()) {
-            IPoint ponto = pontos.get(pontoAtual);
-            // Se já está no ponto ou lá perto...
-            if (Utils.getDistance(this, ponto.getX(), ponto.getY()) < 2) {
-                pontoAtual++;
-            }
-            // Move-se em direção ao próximo ponto no caminho
-            RoboVaiPara(this, ponto.getX(), ponto.getY());
-
-            // atualizar dano que o robo levou
-            atualizarDanoLevado(this, ponto);
-        }
-    }
-
-    public void atualizarDanoLevado(AdvancedRobot robo, IPoint ponto) {
-        double dano = robo.getEnergy();
-
-        // Obtém a solução atual
-        Solution solucaoAtual = new Solution(ger0.get(0));
-
-        // Itera sobre todos os pontos da solução
-        for (IPoint pontoSolucao : solucaoAtual.getPoints()) {
-            // Verifica se o ponto da solução corresponde ao ponto fornecido
-            if (pontoSolucao.getX() == ponto.getX() && pontoSolucao.getY() == ponto.getY()) {
-                // Atualiza o valor de danoLevado para o ponto encontrado
-                solucaoAtual.setDanoLevado(dano);
-                solucaoAtual.setRonda(getRoundNum());
-
-                // verificar se a solucao nao existe na lista
-                if (!pontosPercorridos.contains(solucaoAtual)) {
-                    pontosPercorridos.add(solucaoAtual); // adicionar a lista de pontos percorridos pelo robo
-                }
-
-                break; // Termina o loop, pois o ponto foi encontrado e atualizado
-            }
-        }
-    }
-
-    /**
-     * criar n genes, com caminho
-     * 
-     * @return
-     */
-
-    public ArrayList<Solution> inicializarGeracao0() {
-        ArrayList<Solution> gen0 = new ArrayList<Solution>();
-
-        // for (int i = 0; i < POP_SIZE; i++) {
-        // Gera um novo caminho aleatório e adiciona à lista de soluções da geração 0
-        Solution solucao = gerarCaminhoRandom();
-        gen0.add(solucao);
-        // }
-
-        return gen0;
-    }
-
-    /**
-     * terminou a ronda, mostra o melhor fitness até a ronda atual
-     */
-    public void terminouRonda() {
-        // System.out.println("LISTA DE PONTOS DO ROBO " + pontos);
-        Collections.sort(pontosPercorridos); // ordenar individuos com o fitness maior
-
-        System.out.println("PONTOS PERCORRIDOS: \n" + pontosPercorridos);
-
-        // se existir dados no pontosPercorridos
-
-        if (!pontosPercorridos.isEmpty()) {
-            try {
-                System.out.println("Ronda: " + (getRoundNum() + 1) + ", Best Fitness: " +
-                        pontosPercorridos.get(0).getFitnessFunction() + "\n");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     /**
@@ -353,40 +132,16 @@ public class SirKazzio extends AdvancedRobot {
      */
     @Override
     public void onDeath(DeathEvent event) {
-        super.onDeath(event); // Chama o método onDeath da superclasse
-
-        terminouRonda();
+        super.onDeath(event);
     }
 
+    /**
+     * o robo ganhou
+     */
     @Override
     public void onWin(WinEvent event) {
         super.onWin(event); // Chama o método onDeath da superclasse
 
-        terminouRonda();
-    }
-
-    /**
-     * Gera um novo caminho aleatório.
-     */
-    private Solution gerarCaminhoRandom() {
-        conf.setStart(new Point((int) this.getX(), (int) this.getY()));
-        // Define o ponto de destino como uma posição aleatória no campo de batalha
-        conf.setEnd(new Point(rand.nextInt(conf.getWidth()), rand.nextInt(conf.getHeight())));
-
-        // Gera um novo caminho aleatório com um número aleatório de nós intermediários
-        pontos = new ArrayList<>();
-        pontos.add(new Point((int) this.getX(), (int) this.getY())); // Adiciona o ponto de partida
-        int size = rand.nextInt(5); // Cria um caminho aleatório com no máximo 5 nós intermédios (excetuando início
-                                    // e fim)
-        for (int i = 0; i < size; i++) {
-            pontos.add(new Point(rand.nextInt(conf.getWidth()), rand.nextInt(conf.getHeight()))); // Adiciona nós
-                                                                                                  // intermediários
-                                                                                                  // aleatórios
-        }
-        pontos.add(conf.getEnd()); // Adiciona o ponto de destino
-        pontoAtual = 0; // Define o ponto atual como o ponto de partida
-
-        return new Solution(pontos);
     }
 
     /**
@@ -396,37 +151,6 @@ public class SirKazzio extends AdvancedRobot {
     public void onHitWall(HitWallEvent event) {
         super.onHitWall(event);
 
-        // Define o ponto de destino como uma posição aleatória no campo de batalha,
-        // evitando a parede
-        int newX = rand.nextInt(conf.getWidth());
-        int newY = rand.nextInt(conf.getHeight());
-
-        while (!isSafe(newX, newY)) {
-            newX = rand.nextInt(conf.getWidth());
-            newY = rand.nextInt(conf.getHeight());
-        }
-
-        conf.setEnd(new Point(newX, newY));
-
-        // Gera um novo caminho aleatório
-        gerarCaminhoRandom();
-    }
-
-    /**
-     * Verifica se uma posição é segura (não está dentro de uma parede).
-     * 
-     * @param x A coordenada x da posição a ser verificada.
-     * @param y A coordenada y da posição a ser verificada.
-     * @return true se a posição é segura, false caso contrário.
-     */
-    private boolean isSafe(int x, int y) {
-        for (Rectangle obstaculo : obstaculos) {
-            if (obstaculo.contains(x, y)) {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     /**
@@ -520,7 +244,7 @@ public class SirKazzio extends AdvancedRobot {
 
         // impressão dos retângulos de obstáculos no console
         // System.out.println("INIMIGOS EM:");
-        // obstacles.forEach(x -> System.out.println(x));
+        // obstaculos.forEach(x -> System.out.println(x));
     }
 
     /**
