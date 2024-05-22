@@ -107,7 +107,7 @@ public class SirKazzio extends AdvancedRobot {
      */
     public static int pontoAtual = -1;
 
-    public static int MIN_DISTANCIA_PAREDE = 200;
+    public static double PER_MIN_DISTANCIA_PAREDE = 0.2;
 
     // #endregion
 

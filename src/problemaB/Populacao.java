@@ -40,26 +40,18 @@ public class Populacao {
         int mapWidth = conf.getWidth();
         int mapHeight = conf.getHeight();
 
-        for (int i = 0; i < tamanho; i++) {
-            int x = rand.nextInt(mapWidth);
-            int y = rand.nextInt(mapHeight);
+        // Calcular o tamanho da margem de segurança em relação ao tamanho do mapa
+        int margemSegurancaX = (int) (mapWidth * 0.4); // 20% da largura do mapa
+        int margemSegurancaY = (int) (mapHeight * 0.4); // 20% da altura do mapa
 
-            // Verificar se a coordenada está dentro da margem de segurança em relação às
-            // paredes
-            if (x < SirKazzio.MIN_DISTANCIA_PAREDE) {
-                x = SirKazzio.MIN_DISTANCIA_PAREDE; // Ajustar para manter a margem de segurança em relação à parede
-                                                    // esquerda
-            } else if (x > mapWidth - SirKazzio.MIN_DISTANCIA_PAREDE) {
-                x = mapWidth - SirKazzio.MIN_DISTANCIA_PAREDE; // Ajustar para manter a margem de segurança em relação à
-                                                               // parede direita
-            }
-            if (y < SirKazzio.MIN_DISTANCIA_PAREDE) {
-                y = SirKazzio.MIN_DISTANCIA_PAREDE; // Ajustar para manter a margem de segurança em relação à parede
-                                                    // superior
-            } else if (y > mapHeight - SirKazzio.MIN_DISTANCIA_PAREDE) {
-                y = mapHeight - SirKazzio.MIN_DISTANCIA_PAREDE; // Ajustar para manter a margem de segurança em relação
-                                                                // à parede inferior
-            }
+        for (int i = 0; i < tamanho; i++) {
+            int x, y;
+            do {
+                x = rand.nextInt(mapWidth - 2 * margemSegurancaX) + margemSegurancaX;
+                y = rand.nextInt(mapHeight - 2 * margemSegurancaY) + margemSegurancaY;
+
+                // Verificar se a coordenada está dentro da margem de segurança
+            } while (estaPertoDaMargem(x, y, margemSegurancaX, margemSegurancaY, mapWidth, mapHeight));
 
             caminho.add(new Point(x, y));
         }
@@ -67,6 +59,13 @@ public class Populacao {
         caminho.add(conf.getEnd());
 
         return new Cromossomo(caminho);
+    }
+
+    // Função auxiliar para verificar se um ponto está perto da margem de segurança
+    private boolean estaPertoDaMargem(int x, int y, int margemSegurancaX, int margemSegurancaY, int mapWidth,
+            int mapHeight) {
+        return x <= margemSegurancaX || x >= mapWidth - margemSegurancaX ||
+                y <= margemSegurancaY || y >= mapHeight - margemSegurancaY;
     }
 
     /**
