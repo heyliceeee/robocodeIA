@@ -3,6 +3,7 @@ package sampleRobots;
 import robocode.AdvancedRobot;
 import robocode.BattleEndedEvent;
 import robocode.DeathEvent;
+import robocode.HitRobotEvent;
 import robocode.HitWallEvent;
 import robocode.RobocodeFileOutputStream;
 import robocode.RobotDeathEvent;
@@ -106,6 +107,8 @@ public class SirKazzio extends AdvancedRobot {
      */
     public static int pontoAtual = -1;
 
+    public static int MIN_DISTANCIA_PAREDE = 200;
+
     // #endregion
 
     @Override
@@ -146,6 +149,9 @@ public class SirKazzio extends AdvancedRobot {
                 }
 
                 RoboVaiPara(this, ponto.getX(), ponto.getY());
+
+                // verifica se bate na parede
+                // avoidWalls();
             }
 
             this.execute();
@@ -184,6 +190,30 @@ public class SirKazzio extends AdvancedRobot {
     public void onHitWall(HitWallEvent event) {
         super.onHitWall(event);
 
+        // Gira o robô 90 graus quando colide com a parede
+        // setTurnRight(90);
+        // ahead(100); // Move ahead to continue path
+    }
+
+    private void avoidWalls() {
+        double margin = 50; // Distance from wall to start avoiding
+        double x = getX();
+        double y = getY();
+        double battlefieldWidth = conf.getWidth();
+        double battlefieldHeight = conf.getHeight();
+
+        if (x <= margin || x >= battlefieldWidth - margin || y <= margin || y >= battlefieldHeight - margin) {
+            setTurnRight(90); // Turn right if close to a wall
+            setAhead(100); // Move ahead a bit
+        }
+    }
+
+    /**
+     * quando o robo vai contra o robo
+     */
+    @Override
+    public void onHitRobot(HitRobotEvent event) {
+        super.onHitRobot(event);
     }
 
     // #region B) MOVIMENTACAO
@@ -197,8 +227,14 @@ public class SirKazzio extends AdvancedRobot {
 
         conf.setStart(new Point((int) this.getX(), (int) this.getY())); // ponto Inicial
 
-        int pontoFinal_x = rand.nextInt(conf.getWidth());
-        int pontoFinal_y = rand.nextInt(conf.getHeight());
+        // Determinar os limites do mapa
+        int mapWidth = conf.getWidth();
+        int mapHeight = conf.getHeight();
+
+        // Gerar coordenadas para o ponto final, garantindo a distância mínima das
+        // paredes
+        int pontoFinal_x = rand.nextInt(mapWidth);
+        int pontoFinal_y = rand.nextInt(mapHeight);
 
         conf.setEnd(new Point(pontoFinal_x, pontoFinal_y)); // ponto Final
 
@@ -208,14 +244,14 @@ public class SirKazzio extends AdvancedRobot {
         Populacao populacao = new Populacao(SirKazzio.POP_SIZE, conf);
 
         for (int i = 0; i < SirKazzio.MAX_ITERATIONS; i++) {
-            populacao = AlgoritmoGenetico.evoluirPopulacao(populacao, conf);
+            populacao = AlgoritmoGenetico.evoluirPopulacao(populacao, conf, obstaculos);
             System.out.println("Geração " + (i + 1) + ": best fitness = " + populacao.getMelhor().fitnessFunction);
         }
 
         pontos = populacao.getMelhor().caminho;
         pontoAtual = 0;
 
-        System.out.println("Caminho gerado: " + pontos);
+        System.out.println("Caminho gerado: " + populacao.getMelhor().getFitnessFunction());
     }
 
     /**

@@ -9,6 +9,7 @@ import java.util.Random;
 import impl.Point;
 import impl.UIConfiguration;
 import interf.IPoint;
+import sampleRobots.SirKazzio;
 
 public class Populacao {
     public List<Cromossomo> cromossomos;
@@ -35,8 +36,32 @@ public class Populacao {
 
         int tamanho = rand.nextInt(5) + 5;
 
+        // Determinar as dimensões do mapa
+        int mapWidth = conf.getWidth();
+        int mapHeight = conf.getHeight();
+
         for (int i = 0; i < tamanho; i++) {
-            caminho.add(new Point(rand.nextInt(conf.getWidth()), rand.nextInt(conf.getHeight())));
+            int x = rand.nextInt(mapWidth);
+            int y = rand.nextInt(mapHeight);
+
+            // Verificar se a coordenada está dentro da margem de segurança em relação às
+            // paredes
+            if (x < SirKazzio.MIN_DISTANCIA_PAREDE) {
+                x = SirKazzio.MIN_DISTANCIA_PAREDE; // Ajustar para manter a margem de segurança em relação à parede
+                                                    // esquerda
+            } else if (x > mapWidth - SirKazzio.MIN_DISTANCIA_PAREDE) {
+                x = mapWidth - SirKazzio.MIN_DISTANCIA_PAREDE; // Ajustar para manter a margem de segurança em relação à
+                                                               // parede direita
+            }
+            if (y < SirKazzio.MIN_DISTANCIA_PAREDE) {
+                y = SirKazzio.MIN_DISTANCIA_PAREDE; // Ajustar para manter a margem de segurança em relação à parede
+                                                    // superior
+            } else if (y > mapHeight - SirKazzio.MIN_DISTANCIA_PAREDE) {
+                y = mapHeight - SirKazzio.MIN_DISTANCIA_PAREDE; // Ajustar para manter a margem de segurança em relação
+                                                                // à parede inferior
+            }
+
+            caminho.add(new Point(x, y));
         }
 
         caminho.add(conf.getEnd());
