@@ -50,6 +50,6 @@ public class Populacao {
      * @return
      */
     public Cromossomo getMelhor() {
-        return Collections.max(cromossomos, Comparator.comparingDouble(c -> c.fitnessFunction));
+        return Collections.max(cromossomos, Comparator.comparingDouble(c -> c.getFitnessFunction()));
     }
 }
