@@ -3,16 +3,21 @@ package sampleRobots;
 import robocode.*;
 import robocode.util.Utils;
 
-import java.util.List;
 import java.awt.geom.Point2D;
 import java.awt.geom.Point2D.Double;
 import java.awt.*;
+import java.util.*;
+import java.util.List;
 
 import problemaB.GeneticAlgorithm;
 
-import java.util.ArrayList;
-
 public class GeneticAlgorithmBot extends AdvancedRobot {
+    /**
+     * associar inimigos a retângulos e permitir remover retângulos de inimigos já
+     * desatualizados
+     */
+    public static HashMap<String, Rectangle> inimigos;
+
     private List<GeneticAlgorithm.Point> path;
     private List<GeneticAlgorithm.Point> visitedPoints = new ArrayList<>();
     private int currentIndex = 0;
@@ -24,12 +29,16 @@ public class GeneticAlgorithmBot extends AdvancedRobot {
         setAdjustGunForRobotTurn(true);
         setAdjustRadarForGunTurn(true);
 
+        obstacles = new ArrayList<>();
+        inimigos = new HashMap<>();
+
         // Gera o caminho usando o algoritmo genético
         GeneticAlgorithm ga = new GeneticAlgorithm();
         path = ga.findPath();
 
         // Movimenta-se ao longo do caminho
         while (true) {
+            this.setTurnRadarRight(360); // continuamente verifica quais sao os obstaculos perto de si
             moveAlongPath();
             execute(); // Executa as ações pendentes (movimento, rotação, etc.)
         }
@@ -61,6 +70,25 @@ public class GeneticAlgorithmBot extends AdvancedRobot {
         ahead(Math.hypot(dx, dy));
     }
 
+    /**
+     * quando um robô inimigo é destruído.
+     * 
+     * @param event O evento de morte do robô.
+     */
+    @Override
+    public void onRobotDeath(RobotDeathEvent event) {
+        super.onRobotDeath(event); // Chama o método onRobotDeath da superclasse
+
+        // Obtém o retângulo associado ao robô inimigo que foi morto
+        Rectangle rect = inimigos.get(event.getName());
+
+        // Remove o retângulo da lista de obstáculos
+        obstacles.remove(rect);
+
+        // Remove o robô inimigo do mapa de inimigos
+        inimigos.remove(event.getName());
+    }
+
     @Override
     public void onScannedRobot(ScannedRobotEvent event) {
         super.onScannedRobot(event);
@@ -74,13 +102,13 @@ public class GeneticAlgorithmBot extends AdvancedRobot {
         Rectangle enemyRect = new Rectangle((int) enemyPoint.x, (int) enemyPoint.y, (int) (this.getWidth() * 2.5),
                 (int) (this.getHeight() * 2.5));
 
-        // Add the rectangle representing the position of the enemy to the obstacles
-        // list
-        obstacles.add(enemyRect);
+        // se já existe um retângulo para este inimigo, remove-o da lista de obstáculos
+        if (inimigos.containsKey(event.getName())) {
+            obstacles.remove(inimigos.get(event.getName()));
+        }
 
-        // Print the obstacle rectangles to the console
-        // System.out.println("ENEMY RECTANGLES:");
-        // obstacles.forEach(x -> System.out.println(x));
+        obstacles.add(enemyRect); // adiciona o retângulo representando a posição do inimigo à lista de obstáculos
+        inimigos.put(event.getName(), enemyRect); // armazena o retângulo associado ao inimigo pelo nome do inimigo
     }
 
     /**
