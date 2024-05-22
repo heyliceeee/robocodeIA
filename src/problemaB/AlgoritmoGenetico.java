@@ -1,5 +1,6 @@
 package problemaB;
 
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -11,6 +12,8 @@ import interf.IPoint;
 import sampleRobots.SirKazzio;
 
 public class AlgoritmoGenetico {
+
+    public static int geracaoAtual = 0;
 
     /**
      * selecionar pai e mae
@@ -73,7 +76,10 @@ public class AlgoritmoGenetico {
         cromossomo.fitnessFunction = cromossomo.calcularFitnessFunction();
     }
 
-    public static Populacao evoluirPopulacao(Populacao populacao, UIConfiguration conf) {
+    public static Populacao evoluirPopulacao(Populacao populacao, UIConfiguration conf, List<Rectangle> obstaculos) {
+        // Print para mostrar a geração atual
+        System.out.println("[evoluirPopulacao] Geração: " + geracaoAtual);
+
         List<Cromossomo> novosCromossomos = new ArrayList<>();
         List<Cromossomo> pais = selecionarPais(populacao);
 
@@ -84,11 +90,20 @@ public class AlgoritmoGenetico {
             Cromossomo filho = cruzamento(mae, pai);
 
             mutacao(filho, conf);
+
             novosCromossomos.add(filho);
         }
 
         Populacao novaPopulacao = new Populacao(0, conf);
         novaPopulacao.cromossomos = novosCromossomos;
+
+        // Print para mostrar os melhores caminhos encontrados na geração atual
+        Cromossomo melhorCaminho = novaPopulacao.getMelhor();
+        System.out.println("[evoluirPopulacao] Melhor caminho na geração " + geracaoAtual + ": "
+                + melhorCaminho.caminho.toString());
+
+        // Incrementa o número da geração
+        geracaoAtual++;
 
         return novaPopulacao;
     }
