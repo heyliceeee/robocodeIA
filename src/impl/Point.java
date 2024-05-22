@@ -1,16 +1,13 @@
 package impl;
 
-
 import interf.IPoint;
 
 import java.awt.geom.Point2D;
 
-
 /**
  * Class that implements a point
  */
-public class Point implements IPoint
-{
+public class Point implements IPoint {
     private int x;
     private int y;
 
@@ -23,27 +20,26 @@ public class Point implements IPoint
         return x;
     }
 
-    public void setX(int x) {
-        this.x = x;
-    }
-
     public int getY() {
         return y;
     }
 
+    public Point2D.Double toPoint2D() {
+        return new Point2D.Double(x, y);
+    }
+
+    @Override
+    public String toString() {
+        return "(" + x + ", " + y + ")";
+    }
+
+    @Override
     public void setY(int y) {
         this.y = y;
     }
 
-    public Point2D.Double toPoint2D()
-    {
-        return new Point2D.Double(x, y);
-    }
-
-
     @Override
-    public String toString() {
-        return "("+x+", "+y+")";
+    public void setX(int x) {
+        this.x = x;
     }
-
 }

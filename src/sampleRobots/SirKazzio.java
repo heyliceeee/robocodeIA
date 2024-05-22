@@ -11,6 +11,7 @@ import robocode.WinEvent;
 import utils.Utils;
 
 import java.awt.*;
+import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.Point2D.Double;
 import java.io.IOException;
@@ -23,6 +24,9 @@ import java.util.Random;
 import impl.Point;
 import impl.UIConfiguration;
 import interf.IPoint;
+import problemaB.AlgoritmoGenetico;
+import problemaB.Populacao;
+
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -43,30 +47,30 @@ public class SirKazzio extends AdvancedRobot {
     /**
      * tamanho da população
      */
-    public static final int POP_SIZE = 10;
+    public static final int POP_SIZE = 100;
 
     /**
      * percentagem da população que será selecionada para a reprodução com base no
      * seu fitness
      */
-    public static final int POP_HEREDITARY = 5;
+    public static final int POP_HEREDITARY = 50;
 
     /**
      * percentagem de população que sofrerá mutação após a reprodução
      */
-    public static final int POP_MUTATION = 2;
+    public static final int POP_MUTATION = 20;
 
     /**
      * percentagem da população que será criada por cruzamento entre indivíduos
      * selecionados para reprodução
      */
-    public static final int POP_CROSS = 3;
+    public static final int POP_CROSS = 30;
 
     /**
      * número máximo de gerações que o algoritmo genético irá executar antes de
      * parar
      */
-    public static final int MAX_ITERATIONS = 1;
+    public static final int MAX_ITERATIONS = 100;
 
     /**
      * percentagem de melhores indivíduos que serão mantidos inalterados na próxima
@@ -79,7 +83,7 @@ public class SirKazzio extends AdvancedRobot {
     /**
      * lista de obstaculos preenchida ao fazer scan
      */
-    private List<Rectangle> obstaculos;
+    public static List<Rectangle> obstaculos;
 
     /**
      * configurações
@@ -89,13 +93,18 @@ public class SirKazzio extends AdvancedRobot {
     /**
      * lista de pontos do mapa
      */
-    private ArrayList<IPoint> pontos;
+    public static List<IPoint> pontos;
 
     /**
      * associar inimigos a retângulos e permitir remover retângulos de inimigos já
      * desatualizados
      */
-    private HashMap<String, Rectangle> inimigos;
+    public static HashMap<String, Rectangle> inimigos;
+
+    /**
+     * contém o ponto atual para o qual o robot se está a dirigir
+     */
+    public static int pontoAtual = -1;
 
     // #endregion
 
@@ -113,8 +122,32 @@ public class SirKazzio extends AdvancedRobot {
 
         // #endregion
 
+        System.out.println("Iniciando execução...");
+
         while (true) {
-            setTurnRadarRight(360); // Continuously turn the radar
+            this.setTurnRadarRight(360); // continuamente verifica quais sao os obstaculos perto de si
+
+            if (pontoAtual < 0) {
+                gerarNovoCaminho();
+            }
+
+            // se está a dirigir para algum ponto
+            if (pontoAtual >= 0) {
+                IPoint ponto = pontos.get(pontoAtual); // coordenadas do ponto atual
+
+                // se já está no ponto ou lá perto...
+                if (Utils.getDistance(this, ponto.getX(), ponto.getY()) < 2) {
+                    pontoAtual++;
+
+                    // se chegou ao fim do caminho
+                    if (pontoAtual >= pontos.size()) {
+                        pontoAtual = -1;
+                    }
+                }
+
+                RoboVaiPara(this, ponto.getX(), ponto.getY());
+            }
+
             this.execute();
         }
     }
@@ -153,6 +186,38 @@ public class SirKazzio extends AdvancedRobot {
 
     }
 
+    // #region B) MOVIMENTACAO
+
+    /**
+     * atraves da geracao de um ponto random, vai gerar um caminho até a esse ponto,
+     * de forma a desviar dos obstaculos e no menor trajeto possivel
+     */
+    private void gerarNovoCaminho() {
+        Random rand = new Random();
+
+        conf.setStart(new Point((int) this.getX(), (int) this.getY())); // ponto Inicial
+
+        int pontoFinal_x = rand.nextInt(conf.getWidth());
+        int pontoFinal_y = rand.nextInt(conf.getHeight());
+
+        conf.setEnd(new Point(pontoFinal_x, pontoFinal_y)); // ponto Final
+
+        System.out.println("Gerando novo caminho...");
+        System.out.println("Destino: (" + pontoFinal_x + ", " + pontoFinal_y + ")");
+
+        Populacao populacao = new Populacao(SirKazzio.POP_SIZE, conf);
+
+        for (int i = 0; i < SirKazzio.MAX_ITERATIONS; i++) {
+            populacao = AlgoritmoGenetico.evoluirPopulacao(populacao, conf);
+            System.out.println("Geração " + (i + 1) + ": best fitness = " + populacao.getMelhor().fitnessFunction);
+        }
+
+        pontos = populacao.getMelhor().caminho;
+        pontoAtual = 0;
+
+        System.out.println("Caminho gerado: " + pontos);
+    }
+
     /**
      * robo vai para determinadas coordenadas
      * 
@@ -160,7 +225,8 @@ public class SirKazzio extends AdvancedRobot {
      * @param x
      * @param y
      */
-    private void RoboVaiPara(AdvancedRobot robo, int x, int y) {
+    private void RoboVaiPara(AdvancedRobot robo, double x, double y) {
+
         // diferença entre a posição atual do robo e as coordenadas de destino
         x -= robo.getX();
         y -= robo.getY();

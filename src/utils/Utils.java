@@ -35,6 +35,19 @@ public final class Utils
     }
 
     /**
+     * Devolve a distância às coordenadas dadas
+     *
+     * @param robot o meu robot
+     * @param x coordenada x do alvo
+     * @param y coordenada y do alvo
+     * @return distância entre o robot e as coordenadas
+     * */
+    public static double getDistance(double x1, double y1, double x2, double y2)
+    {
+        return Math.hypot(x2 - x1, y2 - y1);
+    }
+
+    /**
      * Devolve as coordenadas de um alvo
      *
      * @param robot o meu robot
