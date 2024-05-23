@@ -25,12 +25,12 @@ public class GeneticAlgorithmBot extends AdvancedRobot {
     /**
      * lista de caminhos do mapa
      */
-    private List<GeneticAlgorithm.Point> path;
+    public static List<GeneticAlgorithm.Point> path;
 
     /**
      * lista de pontos visitados no mapa
      */
-    private List<GeneticAlgorithm.Point> visitedPoints = new ArrayList<>();
+    public static List<GeneticAlgorithm.Point> visitedPoints = new ArrayList<>();
 
     /**
      * contém o ponto atual para o qual o robot se está a dirigir
@@ -45,7 +45,7 @@ public class GeneticAlgorithmBot extends AdvancedRobot {
     /**
      * lista de obstaculos preenchida ao fazer scan
      */
-    private List<Rectangle> obstacles = new ArrayList<>();
+    public static List<Rectangle> obstacles = new ArrayList<>();
     // #endregion
 
     public void run() {
@@ -169,8 +169,9 @@ public class GeneticAlgorithmBot extends AdvancedRobot {
         g.setColor(Color.yellow); // Define a cor da linha
 
         // desenha retângulos representando os obstáculos
-        obstacles.stream().forEach(x -> g.drawRect(x.x, x.y, (int) x.getWidth(), (int) x.getHeight()));
-
+        for (Rectangle obstacle : obstacles) {
+            g.drawRect(obstacle.x, obstacle.y, (int) obstacle.getWidth(), (int) obstacle.getHeight());
+        }
         // se houver pontos no caminho, desenha linhas entre eles
         if (path != null) {
             for (int i = 1; i < path.size(); i++) {
