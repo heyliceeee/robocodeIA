@@ -9,28 +9,59 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 
+import impl.UIConfiguration;
 import problemaB.GeneticAlgorithm;
 
 public class GeneticAlgorithmBot extends AdvancedRobot {
+
+    // #region VARIAVEIS
+
     /**
      * associar inimigos a retângulos e permitir remover retângulos de inimigos já
      * desatualizados
      */
     public static HashMap<String, Rectangle> inimigos;
 
+    /**
+     * lista de caminhos do mapa
+     */
     private List<GeneticAlgorithm.Point> path;
+
+    /**
+     * lista de pontos visitados no mapa
+     */
     private List<GeneticAlgorithm.Point> visitedPoints = new ArrayList<>();
+
+    /**
+     * contém o ponto atual para o qual o robot se está a dirigir
+     */
     private int currentIndex = 0;
+
+    /**
+     * configurações
+     */
+    public static UIConfiguration conf;
+
+    /**
+     * lista de obstaculos preenchida ao fazer scan
+     */
     private List<Rectangle> obstacles = new ArrayList<>();
+    // #endregion
 
     public void run() {
-        // Configurações iniciais do robô
+        // #region Configurações iniciais do robô
         setColors(Color.red, Color.blue, Color.green); // Corpo, canhão e radar
         setAdjustGunForRobotTurn(true);
         setAdjustRadarForGunTurn(true);
+        // #endregion
+
+        // #region inicializar
 
         obstacles = new ArrayList<>();
         inimigos = new HashMap<>();
+        conf = new UIConfiguration((int) getBattleFieldWidth(), (int) getBattleFieldHeight(), obstacles); // tamanho
+
+        // #endregion
 
         // Gera o caminho usando o algoritmo genético
         GeneticAlgorithm ga = new GeneticAlgorithm();

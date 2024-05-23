@@ -2,6 +2,8 @@ package problemaB;
 
 import java.util.*;
 
+import sampleRobots.GeneticAlgorithmBot;
+
 public class GeneticAlgorithm {
     // Classe para representar um ponto
     public static class Point {
@@ -55,8 +57,9 @@ public class GeneticAlgorithm {
     static final int MAX_GENERATIONS = 100;
     static final double MUTATION_RATE = 0.05;
     static final Point START = new Point(0, 0); // ponto inicial
-    static final Point END = new Point(800, 600); //  ponto final
-    static List<Point> obstacles = Arrays.asList(new Point(400, 300)); // Exemplo de obstáculo
+    static final Point END = new Point(GeneticAlgorithmBot.conf.getWidth(), GeneticAlgorithmBot.conf.getHeight()); // ponto
+                                                                                                                   // final
+    static List<Point> obstacles = new ArrayList<>(); // Exemplo de obstáculo
 
     // Método para encontrar o caminho
     public List<Point> findPath() {
@@ -94,8 +97,9 @@ public class GeneticAlgorithm {
         List<Point> path = new ArrayList<>();
         path.add(START);
         Random rand = new Random();
-        for (int i = 1; i < 5; i++) { // Exemplo de 10 pontos intermediários
-            path.add(new Point(rand.nextDouble() * 800, rand.nextDouble() * 600));
+        for (int i = 1; i < 5; i++) { // Exemplo de 5 pontos intermediários
+            path.add(new Point(rand.nextDouble() * GeneticAlgorithmBot.conf.getWidth(),
+                    rand.nextDouble() * GeneticAlgorithmBot.conf.getHeight()));
         }
         path.add(END);
         return path;
@@ -187,8 +191,8 @@ public class GeneticAlgorithm {
         Random rand = new Random();
         for (Point p : chrom.path) {
             if (rand.nextDouble() < MUTATION_RATE) {
-                p.x = rand.nextDouble() * 800; // Ajuste conforme necessário
-                p.y = rand.nextDouble() * 600; // Ajuste conforme necessário
+                p.x = rand.nextDouble() * GeneticAlgorithmBot.conf.getWidth(); // Ajuste conforme necessário
+                p.y = rand.nextDouble() * GeneticAlgorithmBot.conf.getHeight(); // Ajuste conforme necessário
             }
         }
     }
