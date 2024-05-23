@@ -80,19 +80,19 @@ public class GeneticAlgorithm {
     /**
      * tamanho da população
      */
-    static final int POP_SIZE = 100;
+    public static final int POP_SIZE = 100;
 
     /**
      * quantidade de melhores indivíduos que serão mantidos inalterados na próxima
      * geração. Eles são selecionados com base em seu fitness.
      */
-    static final int TOP = 10;
+    public static final int TOP = 10;
 
     /**
      * número máximo de gerações que o algoritmo genético irá executar antes de
      * parar
      */
-    static final int MAX_GENERATIONS = 10;
+    public static final int MAX_GENERATIONS = 100;
 
     /**
      * taxa de mutação controla a probabilidade de que um gene em um cromossomo
@@ -126,6 +126,7 @@ public class GeneticAlgorithm {
 
     public static List<Chromosome> population;
     public static List<Chromosome> newPopulationFix;
+    public static List<Chromosome> bestFitnessPop = new ArrayList<Chromosome>();
 
     // Método para encontrar o caminho
     public List<Point> findPath() {
@@ -145,25 +146,30 @@ public class GeneticAlgorithm {
             // population.clear();
 
             // population = newPopulationFix;
+            // Collections.sort(newPopulationFix);
 
             // System.out.println("Gen " + generation + ": Best fitness = " +
-            /// bestFitness);
+            // newPopulationFix.get(0).getFitness());
+            bestFitnessPop.add(newPopulationFix.get(0));
+
             generation++;
         }
 
-        System.out.println("TOP " + TOP + ": ");
+        // System.out.println("TOP " + TOP + ": ");
 
         // topPChromosomes = populationAscendingOrder(population);
-        Collections.sort(newPopulationFix);
+        // Collections.sort(newPopulationFix);
 
-        for (int i = 0; i < TOP; i++) {
-            System.out.println(newPopulationFix.get(i));
-        }
+        /*
+         * for (int i = 0; i < TOP; i++) {
+         * System.out.println(newPopulationFix.get(i));
+         * }
+         */
 
         System.out.println(
                 "------------------------------------------------------//------------------------------------------------------");
 
-        return newPopulationFix.get(0).getPath();
+        return bestFitnessPop.get(0).getPath();
     }
 
     // Inicializa a população com cromossomos aleatórios
@@ -237,7 +243,6 @@ public class GeneticAlgorithm {
         // Retorna a distância total percorrida
         return totalDistance;
     }
-
 
     // Calcula a distância entre dois pontos
     private double distance(Point a, Point b) {

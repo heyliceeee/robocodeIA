@@ -5,12 +5,14 @@ import robocode.util.Utils;
 
 import java.awt.geom.Point2D;
 import java.awt.geom.Point2D.Double;
+import java.io.IOException;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
 
 import impl.UIConfiguration;
 import problemaB.GeneticAlgorithm;
+import problemaB.GeneticAlgorithm.Chromosome;
 
 public class GeneticAlgorithmBot extends AdvancedRobot {
 
@@ -75,6 +77,83 @@ public class GeneticAlgorithmBot extends AdvancedRobot {
             this.setTurnRadarRight(360); // continuamente verifica quais sao os obstaculos perto de si
             moveAlongPath();
             execute(); // Executa as ações pendentes (movimento, rotação, etc.)
+        }
+    }
+
+    @Override
+    public void onBattleEnded(BattleEndedEvent event) {
+
+        exportarMovimentacaoGraficoFicheiro();
+        exportarTopMovimentosFicheiro();
+    }
+
+    /**
+     * exportar o caminho realizados na partida, para um .txt
+     */
+    private void exportarMovimentacaoGraficoFicheiro() {
+        try {
+
+            RobocodeFileOutputStream outputStream = new RobocodeFileOutputStream(getDataFile("movimentacaoGraph.txt"));
+
+            // Collections.sort(GeneticAlgorithm.newPopulationFix);
+            int i = 0;
+
+            List<Chromosome> firstPop = new ArrayList<Chromosome>(GeneticAlgorithm.MAX_GENERATIONS);
+
+            firstPop = GeneticAlgorithm.bestFitnessPop;
+
+            for (Chromosome solucao : firstPop) {
+
+                outputStream.write((solucao.getFitness() +
+                        System.lineSeparator()).getBytes());
+
+                        i++;
+
+                if (i >= GeneticAlgorithm.MAX_GENERATIONS) {
+                    break;
+                }
+            }
+            outputStream.close();
+            System.out.println("Lista exportada com sucesso para o arquivo: movimentacaoGraph.txt");
+
+        } catch (IOException e) {
+            System.err.println("Erro ao exportar lista para arquivo: " + e.getMessage());
+        }
+    }
+
+    /**
+     * exportar os top movimentos realizados na partida, para um .txt
+     */
+    private void exportarTopMovimentosFicheiro() {
+        try {
+
+            RobocodeFileOutputStream outputStream = new RobocodeFileOutputStream(getDataFile("movimentacaoTop.txt"));
+
+            int i = 0;
+
+            List<Chromosome> firstPop = new ArrayList<Chromosome>(GeneticAlgorithm.POP_SIZE);
+
+            firstPop = GeneticAlgorithm.bestFitnessPop;
+
+            Collections.sort(firstPop);
+
+            for (Chromosome solucao : firstPop) {
+
+                outputStream.write((solucao +
+                        System.lineSeparator()).getBytes());
+
+                i++;
+
+                if (i >= GeneticAlgorithm.TOP) {
+                    break;
+                }
+            }
+
+            outputStream.close();
+            System.out.println("Lista exportada com sucesso para o arquivo: movimentacaoTop.txt");
+
+        } catch (IOException e) {
+            System.err.println("Erro ao exportar lista para arquivo: " + e.getMessage());
         }
     }
 
