@@ -46,6 +46,9 @@ public class GeneticAlgorithmBot extends AdvancedRobot {
      * lista de obstaculos preenchida ao fazer scan
      */
     public static List<Rectangle> obstacles = new ArrayList<>();
+
+    static final Random rand = new Random();
+
     // #endregion
 
     public void run() {
@@ -84,6 +87,11 @@ public class GeneticAlgorithmBot extends AdvancedRobot {
             currentIndex++;
         } else {
             // Se chegou ao fim do caminho, recalcula o caminho (opcional)
+
+            GeneticAlgorithm.START = new GeneticAlgorithm.Point(this.getY(), this.getX()); // ponto inicial
+            GeneticAlgorithm.START = new GeneticAlgorithm.Point(rand.nextDouble() * GeneticAlgorithmBot.conf.getWidth(),
+                    rand.nextDouble() * GeneticAlgorithmBot.conf.getHeight()); // ponto final
+
             GeneticAlgorithm ga = new GeneticAlgorithm();
             path = ga.findPath();
             currentIndex = 0;
