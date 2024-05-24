@@ -20,6 +20,7 @@ public class GridRobot extends AdvancedRobot {
         setGunColor(Color.black);
         setRadarColor(Color.yellow);
 
+        // Move the initialization of sectionWidth and sectionHeight here
         sectionWidth = getBattleFieldWidth() / NUM_COLS;
         sectionHeight = getBattleFieldHeight() / NUM_ROWS;
 
