@@ -9,13 +9,14 @@
             "/Users/davidecarneiro/robocode/libs/robocode.jar",
             "bin/lib/jackson-core-2.17.0.jar",
             "bin/lib/jackson-databind-2.17.0.jar",
-            "bin/lib/robocode.jar"
+            "bin/lib/robocode.jar",
+            "lib/h2o-genmodel-3.46.0.2.jar" 
         ],
         "exclude": [
             "bin/lib/jackson-annotations-2.17.0.jar"
         ]
     },
     "[java]": {
-        "editor.defaultFormatter": "redhat.java",
-    },
+        "editor.defaultFormatter": "redhat.java"
+    }
 }

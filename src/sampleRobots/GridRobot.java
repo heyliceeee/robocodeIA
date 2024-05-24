@@ -66,10 +66,8 @@ public class GridRobot extends AdvancedRobot {
     }
 
     private double normalizeBearing(double angle) {
-        while (angle > 180)
-            angle -= 360;
-        while (angle < -180)
-            angle += 360;
+        while (angle > 180) angle -= 360;
+        while (angle < -180) angle += 360;
         return angle;
     }
 
@@ -100,8 +98,7 @@ public class GridRobot extends AdvancedRobot {
         long time = getTime();
 
         try {
-            writer.printf("%d,%.2f,%.2f,%.2f,%.2f,%d%n", time, robotX, robotY, enemyDistance, enemyBearing,
-                    hitByBullet);
+            writer.printf("%d,%.2f,%.2f,%.2f,%.2f,%d%n", time, robotX, robotY, enemyDistance, enemyBearing, hitByBullet);
             writer.flush();
         } catch (Exception e) {
             e.printStackTrace();

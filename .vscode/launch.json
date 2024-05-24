@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "App",
+            "request": "launch",
+            "mainClass": "App",
+            "projectName": "robocodeIA_9812c908"
+        },
+        {
+            "type": "java",
             "name": "SirKazzio",
             "request": "launch",
             "mainClass": "sampleRobots.SirKazzio",
