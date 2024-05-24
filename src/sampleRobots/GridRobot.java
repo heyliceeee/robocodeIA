@@ -2,6 +2,7 @@ package sampleRobots;
 
 import robocode.*;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -12,7 +13,7 @@ public class GridRobot extends AdvancedRobot {
     private static final int NUM_COLS = 2;
     private double sectionWidth;
     private double sectionHeight;
-    private PrintWriter writer;
+    private RobocodeFileOutputStream writer;
 
     @Override
     public void run() {
@@ -24,8 +25,9 @@ public class GridRobot extends AdvancedRobot {
         sectionHeight = getBattleFieldHeight() / NUM_ROWS;
 
         try {
-            writer = new PrintWriter(new BufferedWriter(new FileWriter(getDataFile("robot_data.csv"), true)));
-            writer.println("time,robotX,robotY,enemyDistance,enemyBearing,hitByBullet");
+            writer = new RobocodeFileOutputStream(getDataFile("robot_data.csv"));
+            String header = "time,robotX,robotY,enemyDistance,enemyBearing,hitByBullet\n";
+            writer.write(header.getBytes());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -93,14 +95,22 @@ public class GridRobot extends AdvancedRobot {
         back(20);
     }
 
+    private void writeDataToFile(long time, double robotX, double robotY, double enemyDistance, double enemyBearing, int hitByBullet) {
+        try {
+            String dados = String.format("%d,%.2f,%.2f,%.2f,%.2f,%d\n", time, robotX, robotY, enemyDistance, enemyBearing, hitByBullet);
+            writer.write(dados.getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void logData(double enemyDistance, double enemyBearing, int hitByBullet) {
         double robotX = getX();
         double robotY = getY();
         long time = getTime();
 
         try {
-            writer.printf("%d,%.2f,%.2f,%.2f,%.2f,%d%n", time, robotX, robotY, enemyDistance, enemyBearing,
-                    hitByBullet);
+            writeDataToFile(time, robotX, robotY, enemyDistance, enemyBearing, hitByBullet);
             writer.flush();
         } catch (Exception e) {
             e.printStackTrace();
@@ -109,15 +119,25 @@ public class GridRobot extends AdvancedRobot {
 
     @Override
     public void onWin(WinEvent event) {
-        closeWriter();
+        try {
+            closeWriter();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void onDeath(DeathEvent event) {
-        closeWriter();
+        try {
+            closeWriter();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
-    private void closeWriter() {
+    private void closeWriter() throws IOException {
         if (writer != null) {
             writer.close();
         }
