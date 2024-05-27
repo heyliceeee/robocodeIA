@@ -1,11 +1,7 @@
 package sampleRobots;
 
 import robocode.*;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.awt.Color;
 
 public class GridRobot extends AdvancedRobot {
@@ -14,6 +10,7 @@ public class GridRobot extends AdvancedRobot {
     private double sectionWidth;
     private double sectionHeight;
     private RobocodeFileOutputStream writer;
+    private PrintWriter csvWriter;
 
     @Override
     public void run() {
@@ -25,8 +22,9 @@ public class GridRobot extends AdvancedRobot {
         sectionHeight = getBattleFieldHeight() / NUM_ROWS;
 
         try {
-            writer = new RobocodeFileOutputStream(getDataFile("robot_data.csv"));
             String header = "time,robotX,robotY,enemyDistance,enemyBearing,hitByBullet\n";
+            writer = new RobocodeFileOutputStream(getDataFile("robot_dataset.csv"));
+            csvWriter = new PrintWriter(new BufferedWriter(new FileWriter("grid_robot_dataset_full.csv", true)));
             writer.write(header.getBytes());
         } catch (IOException e) {
             e.printStackTrace();
@@ -38,6 +36,11 @@ public class GridRobot extends AdvancedRobot {
 
             moveToSection((section + 1) % (NUM_ROWS * NUM_COLS));
             execute();
+
+            // Periodically flush and clear the intermediate file
+            if (getTime() % 100 == 0) { // Adjust this value based on your requirements
+                flushAndClearIntermediateFile();
+            }
         }
     }
 
@@ -67,10 +70,8 @@ public class GridRobot extends AdvancedRobot {
     }
 
     private double normalizeBearing(double angle) {
-        while (angle > 180)
-            angle -= 360;
-        while (angle < -180)
-            angle += 360;
+        while (angle > 180) angle -= 360;
+        while (angle < -180) angle += 360;
         return angle;
     }
 
@@ -97,8 +98,10 @@ public class GridRobot extends AdvancedRobot {
 
     private void writeDataToFile(long time, double robotX, double robotY, double enemyDistance, double enemyBearing, int hitByBullet) {
         try {
-            String dados = String.format("%d,%.2f,%.2f,%.2f,%.2f,%d\n", time, robotX, robotY, enemyDistance, enemyBearing, hitByBullet);
-            writer.write(dados.getBytes());
+            String data = String.format("%d,%.2f,%.2f,%.2f,%.2f,%d\n", time, robotX, robotY, enemyDistance, enemyBearing, hitByBullet);
+            // writes data to the Robocode's intermediate file
+            writer.write(data.getBytes());
+            writer.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -111,7 +114,6 @@ public class GridRobot extends AdvancedRobot {
 
         try {
             writeDataToFile(time, robotX, robotY, enemyDistance, enemyBearing, hitByBullet);
-            writer.flush();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -120,9 +122,9 @@ public class GridRobot extends AdvancedRobot {
     @Override
     public void onWin(WinEvent event) {
         try {
+            flushAndClearIntermediateFile();
             closeWriter();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
@@ -130,9 +132,36 @@ public class GridRobot extends AdvancedRobot {
     @Override
     public void onDeath(DeathEvent event) {
         try {
+            flushAndClearIntermediateFile();
             closeWriter();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    private void flushAndClearIntermediateFile() {
+        try {
+            // Flush the Robocode file writer
+            writer.flush();
+
+            // Read data from the intermediate file
+            File intermediateFile = getDataFile("robot_dataset.csv");
+            BufferedReader reader = new BufferedReader(new FileReader(intermediateFile));
+            String line;
+
+            // Skip the header line
+            reader.readLine();
+
+            // Append the rest of the data to the full dataset file
+            while ((line = reader.readLine()) != null) {
+                csvWriter.append(line).append("\n");
+            }
+
+            // Close reader and clear the intermediate file
+            reader.close();
+            new FileWriter(intermediateFile).close(); // Clear the file content
+
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -140,6 +169,9 @@ public class GridRobot extends AdvancedRobot {
     private void closeWriter() throws IOException {
         if (writer != null) {
             writer.close();
+        }
+        if (csvWriter != null) {
+            csvWriter.close();
         }
     }
 }
