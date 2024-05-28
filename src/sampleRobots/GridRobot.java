@@ -107,17 +107,11 @@ public class GridRobot extends AdvancedRobot {
         double robotY = getY();
         long time = getTime();
 
-        if (fileSize == MAX_FILE_SIZE) {
+        if (fileSize >= MAX_FILE_SIZE) {
             copyCSV();
-            try {
-                writer.flush();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
         }
-
         writeDataToFile(time, robotX, robotY, enemyDistance, enemyBearing, hitByBullet);
+
     }
 
     /**
@@ -162,11 +156,11 @@ public class GridRobot extends AdvancedRobot {
     }
 
     /**
-     * copies one csv file to another 
+     * copies one csv file to another
      */
     private void copyCSV() {
         try (BufferedReader reader = new BufferedReader(new FileReader(getDataFile("robot_data.csv")));
-             BufferedWriter writer = new BufferedWriter(new FileWriter(getDataFile("robot_data.csv")))) {
+                BufferedWriter writer = new BufferedWriter(new FileWriter(getDataFile("robot_data.csv")))) {
 
             String line;
             while ((line = reader.readLine()) != null) {
@@ -178,6 +172,5 @@ public class GridRobot extends AdvancedRobot {
             e.printStackTrace();
         }
     }
-    
 
 }
