@@ -159,8 +159,8 @@ public class GridRobot extends AdvancedRobot {
      * copies one csv file to another
      */
     private void copyCSV() {
-        try (BufferedReader reader = new BufferedReader(new FileReader(getDataFile("robot_data.csv")));
-                BufferedWriter writer = new BufferedWriter(new FileWriter(getDataFile("robot_data.csv")))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(getDataFile("bin\\sampleRobots\\GridRobot.data\\robot_data.csv")));
+                BufferedWriter writer = new BufferedWriter(new FileWriter(getDataFile("src\\App.javarobot_data.csv")))) {
 
             String line;
             while ((line = reader.readLine()) != null) {
