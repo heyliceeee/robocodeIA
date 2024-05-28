@@ -2,6 +2,10 @@ package sampleRobots;
 
 import robocode.*;
 import java.awt.Color;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 
 public class GridRobot extends AdvancedRobot {
@@ -10,6 +14,7 @@ public class GridRobot extends AdvancedRobot {
     private double sectionWidth;
     private double sectionHeight;
     private RobocodeFileOutputStream writer;
+    private final long MAX_FILE_SIZE = 200000;
 
     @Override
     public void run() {
@@ -97,9 +102,20 @@ public class GridRobot extends AdvancedRobot {
     }
 
     private void logData(double enemyDistance, double enemyBearing, int hitByBullet) {
+        long fileSize = getDataFile("robot_data.csv").length();
         double robotX = getX();
         double robotY = getY();
         long time = getTime();
+
+        if (fileSize == MAX_FILE_SIZE) {
+            copyCSV();
+            try {
+                writer.flush();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
 
         writeDataToFile(time, robotX, robotY, enemyDistance, enemyBearing, hitByBullet);
     }
@@ -144,4 +160,25 @@ public class GridRobot extends AdvancedRobot {
             }
         }
     }
+
+    /**
+     * copies one csv file to another 
+     */
+    private void copyCSV() {
+        try (BufferedReader reader = new BufferedReader(new FileReader(getDataFile("robot_data.csv")));
+                BufferedWriter writer = new BufferedWriter(new FileWriter(getDataFile("final_dataset.csv")))) {
+    
+            char[] buffer = new char[8192]; // Buffer size for reading and writing
+            int charsRead;
+            while ((charsRead = reader.read(buffer)) != -1) {
+                writer.write(buffer, 0, charsRead);
+            }
+    
+        } catch (IOException e) {
+            // Handle IOException appropriately (e.g., log, display error message)
+            e.printStackTrace();
+        }
+    }
+    
+
 }
