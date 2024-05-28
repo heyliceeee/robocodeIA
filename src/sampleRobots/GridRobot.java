@@ -1,13 +1,8 @@
 package sampleRobots;
 
 import robocode.*;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.awt.Color;
-import java.io.FileReader;
+import java.io.IOException;
 
 public class GridRobot extends AdvancedRobot {
     private static final int NUM_ROWS = 2;
@@ -15,31 +10,33 @@ public class GridRobot extends AdvancedRobot {
     private double sectionWidth;
     private double sectionHeight;
     private RobocodeFileOutputStream writer;
-    private FileWriter csvWriter;
 
     @Override
     public void run() {
-        setBodyColor(Color.red);
-        setGunColor(Color.black);
-        setRadarColor(Color.yellow);
-
-        sectionWidth = getBattleFieldWidth() / NUM_COLS;
-        sectionHeight = getBattleFieldHeight() / NUM_ROWS;
-
         try {
-            String header = "time,robotX,robotY,enemyDistance,enemyBearing,hitByBullet\n";
-            csvWriter = new FileWriter("grid_robot_dataset.csv");
             writer = new RobocodeFileOutputStream(getDataFile("robot_data.csv"));
-            csvWriter.append(header);
+            String header = "time,robotX,robotY,enemyDistance,enemyBearing,hitByBullet\n";
+            writer.write(header.getBytes());
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        while (true) {
-            int section = getSection(getX(), getY());
-            out.println("Current Section: " + section);
+        setColors(Color.red, Color.black, Color.yellow); // Set robot colors
 
-            moveToSection((section + 1) % (NUM_ROWS * NUM_COLS));
+        sectionWidth = getBattleFieldWidth() / NUM_COLS;
+        sectionHeight = getBattleFieldHeight() / NUM_ROWS;
+
+        // Move to the center of the battlefield before starting
+        goTo(getBattleFieldWidth() / 2, getBattleFieldHeight() / 2);
+
+        while (true) {
+            // Perform actions based on the robot's current section
+            int currentSection = getSection(getX(), getY());
+            out.println("Current Section: " + currentSection);
+
+            // Example: move to the next section
+            moveToSection((currentSection + 1) % (NUM_ROWS * NUM_COLS));
+
             execute();
         }
     }
@@ -95,20 +92,8 @@ public class GridRobot extends AdvancedRobot {
 
     @Override
     public void onHitWall(HitWallEvent event) {
+        // Back off a bit if the robot hits a wall
         back(20);
-    }
-
-    private void writeDataToFile(long time, double robotX, double robotY, double enemyDistance, double enemyBearing,
-            int hitByBullet) {
-        try {
-            String dados = String.format("%d,%.2f,%.2f,%.2f,%.2f,%d\n", time, robotX, robotY, enemyDistance, enemyBearing, hitByBullet);
-            // writes data do robocodes csv
-            writer.write(dados.getBytes());
-            // writes data to second csv
-            csvWriter.append(dados);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     private void logData(double enemyDistance, double enemyBearing, int hitByBullet) {
@@ -116,37 +101,47 @@ public class GridRobot extends AdvancedRobot {
         double robotY = getY();
         long time = getTime();
 
+        writeDataToFile(time, robotX, robotY, enemyDistance, enemyBearing, hitByBullet);
+    }
+
+    /**
+     * writes data to file
+     * 
+     * @param time
+     * @param robotX
+     * @param robotY
+     * @param enemyDistance
+     * @param enemyBearing
+     * @param hitByBullet
+     */
+    private void writeDataToFile(long time, double robotX, double robotY, double enemyDistance, double enemyBearing,
+            int hitByBullet) {
         try {
-            writeDataToFile(time, robotX, robotY, enemyDistance, enemyBearing, hitByBullet);
-            writer.flush();
-        } catch (Exception e) {
+            String data = String.format("%d,%.2f,%.2f,%.2f,%.2f,%d\n", time, robotX, robotY, enemyDistance,
+                    enemyBearing, hitByBullet);
+            writer.write(data.getBytes());
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     @Override
     public void onWin(WinEvent event) {
-        try {
-            closeWriter();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        closeWriter();
     }
 
     @Override
     public void onDeath(DeathEvent event) {
-        try {
-            closeWriter();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        closeWriter();
     }
 
-    private void closeWriter() throws IOException {
+    private void closeWriter() {
         if (writer != null) {
-            writer.close();
+            try {
+                writer.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
