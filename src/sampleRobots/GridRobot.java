@@ -166,16 +166,15 @@ public class GridRobot extends AdvancedRobot {
      */
     private void copyCSV() {
         try (BufferedReader reader = new BufferedReader(new FileReader(getDataFile("robot_data.csv")));
-                BufferedWriter writer = new BufferedWriter(new FileWriter(getDataFile("final_dataset.csv")))) {
-    
-            char[] buffer = new char[8192]; // Buffer size for reading and writing
-            int charsRead;
-            while ((charsRead = reader.read(buffer)) != -1) {
-                writer.write(buffer, 0, charsRead);
+             BufferedWriter writer = new BufferedWriter(new FileWriter(getDataFile("robot_data.csv")))) {
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                writer.write(line);
+                writer.newLine();
             }
-    
+
         } catch (IOException e) {
-            // Handle IOException appropriately (e.g., log, display error message)
             e.printStackTrace();
         }
     }
