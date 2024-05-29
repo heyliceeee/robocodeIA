@@ -8,10 +8,6 @@ import robocode.HitWallEvent;
 import robocode.WinEvent;
 import robocode.DeathEvent;
 import java.awt.Color;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 
 public class GridRobot extends AdvancedRobot {
@@ -20,7 +16,6 @@ public class GridRobot extends AdvancedRobot {
     private double sectionWidth;
     private double sectionHeight;
     private RobocodeFileOutputStream writer;
-    private final long MAX_FILE_SIZE = 200000;
 
     @Override
     public void run() {
@@ -108,7 +103,6 @@ public class GridRobot extends AdvancedRobot {
     }
 
     private void logData(double enemyDistance, double enemyBearing, int hitByBullet) {
-        long fileSize = getDataFile("robot_data.csv").length();
         double robotX = getX();
         double robotY = getY();
         long time = getTime();
