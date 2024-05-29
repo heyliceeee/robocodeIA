@@ -114,10 +114,6 @@ public class GridRobot extends AdvancedRobot {
         long time = getTime();
 
         writeDataToFile(time, robotX, robotY, enemyDistance, enemyBearing, hitByBullet);
-        if (fileSize >= MAX_FILE_SIZE) {
-            copyCSV();
-        }
-
     }
 
     /**
