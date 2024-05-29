@@ -9,6 +9,11 @@ import robocode.WinEvent;
 import robocode.DeathEvent;
 import java.awt.Color;
 import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GridRobot extends AdvancedRobot {
     private static final int NUM_ROWS = 2;
@@ -19,10 +24,33 @@ public class GridRobot extends AdvancedRobot {
 
     @Override
     public void run() {
+        List<String> existingData = new ArrayList<>();
+        File dataFile = getDataFile("robot_data.csv");
+
+        // Read existing data if the file exists
+        if (dataFile.exists()) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(dataFile))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    existingData.add(line);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         try {
-            writer = new RobocodeFileOutputStream(getDataFile("robot_data.csv"));
-            String header = "time,robotX,robotY,enemyDistance,enemyBearing,hitByBullet\n";
-            writer.write(header.getBytes());
+            writer = new RobocodeFileOutputStream(dataFile);
+            // If the file was empty, write the header
+            if (existingData.isEmpty()) {
+                String header = "time,robotX,robotY,enemyDistance,enemyBearing,hitByBullet\n";
+                writer.write(header.getBytes());
+            } else {
+                // Rewrite existing data
+                for (String line : existingData) {
+                    writer.write((line + "\n").getBytes());
+                }
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -150,5 +178,4 @@ public class GridRobot extends AdvancedRobot {
             }
         }
     }
-
 }
