@@ -1,6 +1,12 @@
 package sampleRobots;
 
-import robocode.*;
+import robocode.AdvancedRobot;
+import robocode.RobocodeFileOutputStream;
+import robocode.ScannedRobotEvent;
+import robocode.HitByBulletEvent;
+import robocode.HitWallEvent;
+import robocode.WinEvent;
+import robocode.DeathEvent;
 import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -152,24 +158,6 @@ public class GridRobot extends AdvancedRobot {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
-    }
-
-    /**
-     * copies one csv file to another
-     */
-    private void copyCSV() {
-        try (BufferedReader reader = new BufferedReader(new FileReader(getDataFile("bin\\sampleRobots\\GridRobot.data\\robot_data.csv")));
-                BufferedWriter writer = new BufferedWriter(new FileWriter(getDataFile("src\\App.javarobot_data.csv")))) {
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                writer.write(line);
-                writer.newLine();
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
