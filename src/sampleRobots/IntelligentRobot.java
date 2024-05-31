@@ -12,33 +12,24 @@ import hex.genmodel.easy.RowData;
 import hex.genmodel.easy.prediction.*;
 
 /**
- * This Robot uses the model provided to guess whether it will hit or miss an enemy.
- * This is a very basic model, trained specifically on the following enemies: Corners, Crazy, SittingDuck, Walls.
- * It is not expected to do great...
+ * robo que dispara, dependendo do que o modelo prevê
  */
 public class IntelligentRobot extends AdvancedRobot {
-
 
     EasyPredictModelWrapper model;
 
     @Override
-    public void run()
-    {
+    public void run() {
         super.run();
 
-        System.out.println("Reading model from folder: "+getDataDirectory());
-        try{
-            //load the model
-            //TODO: be sure to change the path to the model!
-            //you will need to crate the corresponding .data folder in the package of your robot's class, and copy the model there
+        System.out.println("Reading model from folder: " + getDataDirectory());
+        try {
             model = new EasyPredictModelWrapper(MojoModel.load(this.getDataFile("Modelo1.zip").getAbsolutePath()));
-        }
-        catch(IOException ex){
+        } catch (IOException ex) {
             ex.printStackTrace();
         }
-        
 
-        while(true){
+        while (true) {
             setAhead(100);
             setTurnLeft(100);
             Random rand = new Random();
@@ -53,7 +44,7 @@ public class IntelligentRobot extends AdvancedRobot {
         super.onScannedRobot(event);
 
         Point2D.Double coordinates = utils.Utils.getEnemyCoordinates(this, event.getBearing(), event.getDistance());
-        System.out.println("Enemy "+event.getName()+" spotted at "+coordinates.x+","+coordinates.y+"\n");
+        System.out.println("Enemy " + event.getName() + " spotted at " + coordinates.x + "," + coordinates.y + "\n");
 
         RowData row = new RowData();
         row.put("name", event.getName());
@@ -63,18 +54,19 @@ public class IntelligentRobot extends AdvancedRobot {
         row.put("energia", event.getEnergy());
         row.put("cordenadaX", coordinates.x);
         row.put("cordenadaY", coordinates.y);
-        // d.nome + "," + d.distancia + "," + d.velocidade + "," +d.angulo+","+d.energia+","+ d.cordenadaX + "," + d.cordenadaY
+        // d.nome + "," + d.distancia + "," + d.velocidade + ","
+        // +d.angulo+","+d.energia+","+ d.cordenadaX + "," + d.cordenadaY
 
         try {
             BinomialModelPrediction p = model.predictBinomial(row);
             System.out.println("Will I hit? ->" + p.label);
 
-            //if the model predicts I will hit...
-            if(p.label.equals("hit"))
+            // if the model predicts I will hit...
+            if (p.label.equals("hit"))
                 this.fire(3);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    
+
 }

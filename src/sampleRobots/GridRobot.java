@@ -15,6 +15,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * robo que recolhe dados acerca do dataset do problema de localização
+ */
 public class GridRobot extends AdvancedRobot {
     private static final int NUM_ROWS = 2;
     private static final int NUM_COLS = 2;
@@ -128,6 +131,7 @@ public class GridRobot extends AdvancedRobot {
     public void onHitWall(HitWallEvent event) {
         // Back off a bit if the robot hits a wall
         back(20);
+        logData(0, 0, 1);
     }
 
     private void logData(double enemyDistance, double enemyBearing, int hitByBullet) {
@@ -166,6 +170,7 @@ public class GridRobot extends AdvancedRobot {
 
     @Override
     public void onDeath(DeathEvent event) {
+        logData(0, 0, 1);
         closeWriter();
     }
 
