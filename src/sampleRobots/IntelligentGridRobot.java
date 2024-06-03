@@ -5,13 +5,11 @@ import robocode.*;
 import java.awt.geom.*;
 import java.awt.*;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Random;
 import hex.genmodel.MojoModel;
 import hex.genmodel.easy.EasyPredictModelWrapper;
 import hex.genmodel.easy.RowData;
 import hex.genmodel.easy.prediction.*;
-import utils.Utils;
 
 /**
  * This Robot uses the model provided to guess whether it will hit or miss an

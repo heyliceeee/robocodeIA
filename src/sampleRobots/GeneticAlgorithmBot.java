@@ -14,7 +14,7 @@ import impl.UIConfiguration;
 import problemaB.GeneticAlgorithm;
 import problemaB.GeneticAlgorithm.Chromosome;
 
-public class GeneticAlgorithmBot extends AdvancedRobot {
+public abstract class GeneticAlgorithmBot extends AdvancedRobot {
 
     // #region VARIAVEIS
 
