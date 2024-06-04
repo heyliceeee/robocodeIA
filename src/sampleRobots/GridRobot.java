@@ -24,12 +24,14 @@ public class GridRobot extends AdvancedRobot {
 
     private List<Rectangle> obstacles;
     private HashMap<String, Rectangle> enemies; // to associate enemies with rectangles
+    private boolean hitByBullet;
 
     @Override
     public void run() {
         obstacles = new ArrayList<>();
         enemies = new HashMap<>();
-        
+        hitByBullet = false;
+
         List<String> existingData = new ArrayList<>();
         File dataFile = getDataFile("robot_data.csv");
 
@@ -125,7 +127,8 @@ public class GridRobot extends AdvancedRobot {
         Point2D.Double enemyPosition = getEnemyCoordinates(this, enemyBearing, enemyDistance);
         enemyPosition.x -= this.getWidth() * 2.5 / 2;
         enemyPosition.y -= this.getHeight() * 2.5 / 2;
-        Rectangle enemyRect = new Rectangle((int)enemyPosition.x, (int)enemyPosition.y, (int)(this.getWidth() * 2.5), (int)(this.getHeight() * 2.5));
+        Rectangle enemyRect = new Rectangle((int) enemyPosition.x, (int) enemyPosition.y, (int) (this.getWidth() * 2.5),
+                (int) (this.getHeight() * 2.5));
 
         if (enemies.containsKey(event.getName())) { // If the enemy already exists
             obstacles.remove(enemies.get(event.getName())); // Remove the old rectangle
@@ -134,15 +137,21 @@ public class GridRobot extends AdvancedRobot {
         obstacles.add(enemyRect);
         enemies.put(event.getName(), enemyRect);
 
-        int enemySection = getSection(enemyPosition.x + this.getWidth() * 2.5 / 2, enemyPosition.y + this.getHeight() * 2.5 / 2);
-        logData(enemyDistance, enemyBearing, 0, enemyHeading, enemyVelocity, robotSection, enemySection);
+        int enemySection = getSection(enemyPosition.x + this.getWidth() * 2.5 / 2,
+                enemyPosition.y + this.getHeight() * 2.5 / 2);
+        if (event.getEnergy() < getEnergy()) {
+            hitByBullet = true;
+        }
+
+        logData(enemyDistance, enemyBearing, hitByBullet ? 1 : 0, enemyHeading, enemyVelocity, robotSection,
+                enemySection);
         fire(1);
     }
 
     @Override
     public void onHitByBullet(HitByBulletEvent event) {
-        int robotSection = getSection(getX(), getY());
-        logData(0, 0, 1, 0, 0, robotSection, -1); // -1 indicates no enemy data
+        hitByBullet = true;
+        scanForEnemies();
         int currentSection = getSection(getX(), getY());
         int newSection = (currentSection + 1) % (NUM_ROWS * NUM_COLS);
         moveToSection(newSection);
@@ -154,6 +163,7 @@ public class GridRobot extends AdvancedRobot {
         back(20);
         setTurnRight(90);
         ahead(100);
+        scanForEnemies();
     }
 
     @Override
@@ -163,22 +173,46 @@ public class GridRobot extends AdvancedRobot {
         enemies.remove(event.getName());
     }
 
-    private void logData(double enemyDistance, double enemyBearing, int hitByBullet, double enemyHeading, double enemyVelocity, int robotSection, int enemySection) {
+    @Override
+    public void onDeath(DeathEvent event) {
+        scanForEnemies();
+        closeWriter();
+    }
+
+    private void logData(double enemyDistance, double enemyBearing, int hitByBullet, double enemyHeading,
+            double enemyVelocity, int robotSection, int enemySection) {
         double robotX = getX();
         double robotY = getY();
         long time = getTime();
         double robotHeading = getHeading();
         double robotEnergy = getEnergy();
-        double wallDistance = Math.min(Math.min(getX(), getBattleFieldWidth() - getX()), Math.min(getY(), getBattleFieldHeight() - getY()));
+        double wallDistance = Math.min(Math.min(getX(), getBattleFieldWidth() - getX()),
+                Math.min(getY(), getBattleFieldHeight() - getY()));
 
-        writeDataToFile(time, robotX, robotY, enemyDistance, enemyBearing, hitByBullet, robotHeading, robotEnergy, enemyHeading, enemyVelocity, wallDistance, robotSection, enemySection);
+        writeDataToFile(time, robotX, robotY, enemyDistance, enemyBearing, hitByBullet, robotHeading, robotEnergy,
+                enemyHeading, enemyVelocity, wallDistance, robotSection, enemySection);
     }
 
     private void writeDataToFile(long time, double robotX, double robotY, double enemyDistance, double enemyBearing,
-                                 int hitByBullet, double robotHeading, double robotEnergy, double enemyHeading, double enemyVelocity, double wallDistance, int robotSection, int enemySection) {
+            int hitByBullet, double robotHeading, double robotEnergy, double enemyHeading, double enemyVelocity,
+            double wallDistance, int robotSection, int enemySection) {
         try {
-            String data = String.format("%d,%.2f,%.2f,%.2f,%.2f,%d,%.2f,%.2f,%.2f,%.2f,%.2f,%d,%d\n", time, robotX, robotY, enemyDistance,
-                    enemyBearing, hitByBullet, robotHeading, robotEnergy, enemyHeading, enemyVelocity, wallDistance, robotSection, enemySection);
+            // Replace commas with dots in the double values
+            String robotXStr = String.valueOf(robotX).replace(',', '.');
+            String robotYStr = String.valueOf(robotY).replace(',', '.');
+            String enemyDistanceStr = String.valueOf(enemyDistance).replace(',', '.');
+            String enemyBearingStr = String.valueOf(enemyBearing).replace(',', '.');
+            String robotHeadingStr = String.valueOf(robotHeading).replace(',', '.');
+            String robotEnergyStr = String.valueOf(robotEnergy).replace(',', '.');
+            String enemyHeadingStr = String.valueOf(enemyHeading).replace(',', '.');
+            String enemyVelocityStr = String.valueOf(enemyVelocity).replace(',', '.');
+            String wallDistanceStr = String.valueOf(wallDistance).replace(',', '.');
+
+            // Construct the data string with replaced commas
+            String data = String.format("%d,%s,%s,%s,%s,%d,%s,%s,%s,%s,%s,%d,%d\n", time, robotXStr, robotYStr,
+                    enemyDistanceStr,
+                    enemyBearingStr, hitByBullet, robotHeadingStr, robotEnergyStr, enemyHeadingStr, enemyVelocityStr,
+                    wallDistanceStr, robotSection, enemySection);
             writer.write(data.getBytes());
         } catch (IOException e) {
             e.printStackTrace();
@@ -187,11 +221,6 @@ public class GridRobot extends AdvancedRobot {
 
     @Override
     public void onWin(WinEvent event) {
-        closeWriter();
-    }
-
-    @Override
-    public void onDeath(DeathEvent event) {
         closeWriter();
     }
 
@@ -207,6 +236,20 @@ public class GridRobot extends AdvancedRobot {
 
     private Point2D.Double getEnemyCoordinates(Robot robot, double bearing, double distance) {
         double angle = Math.toRadians((robot.getHeading() + bearing) % 360);
-        return new Point2D.Double((robot.getX() + Math.sin(angle) * distance), (robot.getY() + Math.cos(angle) * distance));
+        return new Point2D.Double((robot.getX() + Math.sin(angle) * distance),
+                (robot.getY() + Math.cos(angle) * distance));
+    }
+
+    private void scanForEnemies() {
+        // Scan for all enemies and log their data
+        for (Rectangle enemyRect : enemies.values()) {
+            double enemyX = enemyRect.getX() + enemyRect.getWidth() / 2;
+            double enemyY = enemyRect.getY() + enemyRect.getHeight() / 2;
+            double enemyDistance = Point2D.distance(getX(), getY(), enemyX, enemyY);
+            double enemyBearing = Math.toDegrees(Math.atan2(enemyX - getX(), enemyY - getY()));
+            int robotSection = getSection(getX(), getY());
+            int enemySection = getSection(enemyX, enemyY);
+            logData(enemyDistance, enemyBearing, 0, 0, 0, robotSection, enemySection);
+        }
     }
 }
