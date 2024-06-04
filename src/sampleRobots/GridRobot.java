@@ -150,10 +150,10 @@ public class GridRobot extends AdvancedRobot {
 
     @Override
     public void onHitWall(HitWallEvent event) {
-        // Back off a bit if the robot hits a wall
+        // Back off a bit if the robot hits a wall and resume normal operation
         back(20);
-        int robotSection = getSection(getX(), getY());
-        logData(0, 0, 1, 0, 0, robotSection, -1); // -1 indicates no enemy data
+        setTurnRight(90);
+        ahead(100);
     }
 
     @Override
@@ -192,8 +192,6 @@ public class GridRobot extends AdvancedRobot {
 
     @Override
     public void onDeath(DeathEvent event) {
-        int robotSection = getSection(getX(), getY());
-        logData(0, 0, 1, 0, 0, robotSection, -1); // -1 indicates no enemy data
         closeWriter();
     }
 
