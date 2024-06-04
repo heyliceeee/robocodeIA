@@ -15,9 +15,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Robo that collects data for the localization problem dataset
+ */
 public class GridRobot extends AdvancedRobot {
-    private static final int NUM_ROWS = 2;
-    private static final int NUM_COLS = 2;
+    private static final int NUM_ROWS = 4;
+    private static final int NUM_COLS = 4;
     private double sectionWidth;
     private double sectionHeight;
     private RobocodeFileOutputStream writer;
@@ -43,7 +46,7 @@ public class GridRobot extends AdvancedRobot {
             writer = new RobocodeFileOutputStream(dataFile);
             // If the file was empty, write the header
             if (existingData.isEmpty()) {
-                String header = "time,robotX,robotY,enemyDistance,enemyBearing,hitByBullet\n";
+                String header = "time,robotX,robotY,enemyDistance,enemyBearing,hitByBullet,robotHeading,robotEnergy,enemyHeading,enemyVelocity,wallDistance,robotSection,enemySection\n";
                 writer.write(header.getBytes());
             } else {
                 // Rewrite existing data
@@ -112,13 +115,19 @@ public class GridRobot extends AdvancedRobot {
     public void onScannedRobot(ScannedRobotEvent event) {
         double enemyDistance = event.getDistance();
         double enemyBearing = event.getBearing();
-        logData(enemyDistance, enemyBearing, 0);
+        double enemyHeading = event.getHeading();
+        double enemyVelocity = event.getVelocity();
+        int robotSection = getSection(getX(), getY());
+        double[] enemyPosition = getEnemyPosition(enemyDistance, enemyBearing);
+        int enemySection = getSection(enemyPosition[0], enemyPosition[1]);
+        logData(enemyDistance, enemyBearing, 0, enemyHeading, enemyVelocity, robotSection, enemySection);
         fire(1);
     }
 
     @Override
     public void onHitByBullet(HitByBulletEvent event) {
-        logData(0, 0, 1);
+        int robotSection = getSection(getX(), getY());
+        logData(0, 0, 1, 0, 0, robotSection, -1); // -1 indicates no enemy data
         int currentSection = getSection(getX(), getY());
         int newSection = (currentSection + 1) % (NUM_ROWS * NUM_COLS);
         moveToSection(newSection);
@@ -128,14 +137,19 @@ public class GridRobot extends AdvancedRobot {
     public void onHitWall(HitWallEvent event) {
         // Back off a bit if the robot hits a wall
         back(20);
+        int robotSection = getSection(getX(), getY());
+        logData(0, 0, 1, 0, 0, robotSection, -1); // -1 indicates no enemy data
     }
 
-    private void logData(double enemyDistance, double enemyBearing, int hitByBullet) {
+    private void logData(double enemyDistance, double enemyBearing, int hitByBullet, double enemyHeading, double enemyVelocity, int robotSection, int enemySection) {
         double robotX = getX();
         double robotY = getY();
         long time = getTime();
+        double robotHeading = getHeading();
+        double robotEnergy = getEnergy();
+        double wallDistance = Math.min(Math.min(getX(), getBattleFieldWidth() - getX()), Math.min(getY(), getBattleFieldHeight() - getY()));
 
-        writeDataToFile(time, robotX, robotY, enemyDistance, enemyBearing, hitByBullet);
+        writeDataToFile(time, robotX, robotY, enemyDistance, enemyBearing, hitByBullet, robotHeading, robotEnergy, enemyHeading, enemyVelocity, wallDistance, robotSection, enemySection);
     }
 
     /**
@@ -147,12 +161,19 @@ public class GridRobot extends AdvancedRobot {
      * @param enemyDistance
      * @param enemyBearing
      * @param hitByBullet
+     * @param robotHeading
+     * @param robotEnergy
+     * @param enemyHeading
+     * @param enemyVelocity
+     * @param wallDistance
+     * @param robotSection
+     * @param enemySection
      */
     private void writeDataToFile(long time, double robotX, double robotY, double enemyDistance, double enemyBearing,
-            int hitByBullet) {
+            int hitByBullet, double robotHeading, double robotEnergy, double enemyHeading, double enemyVelocity, double wallDistance, int robotSection, int enemySection) {
         try {
-            String data = String.format("%d,%.2f,%.2f,%.2f,%.2f,%d\n", time, robotX, robotY, enemyDistance,
-                    enemyBearing, hitByBullet);
+            String data = String.format("%d,%.2f,%.2f,%.2f,%.2f,%d,%.2f,%.2f,%.2f,%.2f,%.2f,%d,%d\n", time, robotX, robotY, enemyDistance,
+                    enemyBearing, hitByBullet, robotHeading, robotEnergy, enemyHeading, enemyVelocity, wallDistance, robotSection, enemySection);
             writer.write(data.getBytes());
         } catch (IOException e) {
             e.printStackTrace();
@@ -166,6 +187,8 @@ public class GridRobot extends AdvancedRobot {
 
     @Override
     public void onDeath(DeathEvent event) {
+        int robotSection = getSection(getX(), getY());
+        logData(0, 0, 1, 0, 0, robotSection, -1); // -1 indicates no enemy data
         closeWriter();
     }
 
@@ -177,5 +200,12 @@ public class GridRobot extends AdvancedRobot {
                 e.printStackTrace();
             }
         }
+    }
+
+    private double[] getEnemyPosition(double distance, double bearing) {
+        double angle = Math.toRadians((getHeading() + bearing) % 360);
+        double enemyX = getX() + distance * Math.sin(angle);
+        double enemyY = getY() + distance * Math.cos(angle);
+        return new double[]{enemyX, enemyY};
     }
 }
