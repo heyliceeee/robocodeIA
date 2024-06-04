@@ -61,11 +61,10 @@ public class IntelligentRobot extends AdvancedRobot {
 
         try {
             BinomialModelPrediction p = model.predictBinomial(row);
-            System.out.println("Will I hit? ->" + p.label);
-            System.out.println("Probability of hitting: " + p.classProbabilities[1]);
+            System.out.println("Will I hit? -> " + p.label + "(" + p.classProbabilities[0] + "%)");
 
             // if the model predicts I will hit...
-            if (p.classProbabilities[1] >= 0.20) {
+            if (p.classProbabilities[0] >= 0.80) {
                 this.fire(3);
             }
 
