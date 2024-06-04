@@ -15,12 +15,12 @@ import utils.Utils;
 /**
  * Robo que vai para uma localização, dependendo do que o modelo prevê
  */
-public class IntelligentGridRobot extends AdvancedRobot {
+public class IntelligentGridRobot2 extends AdvancedRobot {
 
     EasyPredictModelWrapper model;
-    String caminhoJoaquim = "C:\\Users\\Utilizador\\Documents\\NetBeansProjects\\TP_IA_2024_Resources_Quim\\build\\classes\\sampleRobots\\IntelligentGridRobot.data\\DP_GridRobot.zip";
+    String caminhoJoaquim = "C:\\Users\\Utilizador\\Documents\\NetBeansProjects\\TP_IA_2024_Resources_Quim\\build\\classes\\sampleRobots\\IntelligentGridRobot2.data\\DP_GridRobot.zip";
     String caminhoDiogo = "";
-    String caminhoAlice = "D:\\githubProjects\\robocodeIA\\bin\\sampleRobots\\IntelligentGridRobot.data\\DP_GridRobot.zip";
+    String caminhoAlice = "D:\\githubProjects\\robocodeIA\\bin\\sampleRobots\\IntelligentGridRobot2.data\\DP_GridRobot.zip";
     double lastX = Double.NaN;
     double lastY = Double.NaN;
     boolean isStuck = false;
@@ -31,10 +31,6 @@ public class IntelligentGridRobot extends AdvancedRobot {
 
         System.out.println("Reading model from folder: " + getDataDirectory());
         try {
-            // load the model
-            // TODO: be sure to change the path to the model!
-            // you will need to create the corresponding .data folder in the package of your
-            // robot's class, and copy the model there
             model = new EasyPredictModelWrapper(MojoModel.load(caminhoAlice));
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -57,23 +53,27 @@ public class IntelligentGridRobot extends AdvancedRobot {
         System.out.println("Enemy " + event.getName() + " spotted at " + coordinates.x + "," + coordinates.y + "\n");
 
         RowData row = new RowData();
-        row.put("robotX", coordinates.x);
-        row.put("robotY", coordinates.y);
-        row.put("enemyDistance", event.getDistance());
-        row.put("enemyBearing", event.getBearing());
+        row.put("robotX", coordinates.x); // coordenada x do robo inimigo
+        row.put("robotY", coordinates.y); // coordenada y do robo inimigo
+        row.put("enemyDistance", event.getDistance()); // distancia do inimigo em relacao ao robo
+        row.put("enemyBearing", event.getBearing()); // angulo do inimigo em relacao ao robo
+
+        double x = getX();
+        double y = getY();
 
         try {
             BinomialModelPrediction p = model.predictBinomial(row);
             System.out.println("O inimigo irá me atingir? -> " + (p.label.equals("0") ? "não" : "sim"));
 
-            if (p.label.equals("0")) {
-                if (isDifferentLocation(coordinates.x, coordinates.y)) {
-                    goTo(coordinates.x, coordinates.y);
-                } else {
-                    performRandomMovement();
-                }
-            } else {
-                performEvasiveManeuver();
+            if (p.label.equals("0")) // o inimigo nao me vai atingir
+            {
+                // ir para as coordenadas
+                goTo((double) row.get("robotX"), (double) row.get("robotY"));
+            } else // o inimigo vai me atingir
+            {
+                // Tome outra ação, como esquivar-se, atacar o inimigo ou recuar
+                // Por exemplo, você pode adicionar uma lógica para esquivar-se da bala
+                back(100);
             }
 
         } catch (Exception e) {

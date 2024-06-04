@@ -14,19 +14,23 @@ import java.io.FileReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * robo que recolhe dados acerca do dataset do problema de disparo
+ */
 public class ReconhecimentoRobot extends AdvancedRobot {
 
     private class Dados {
 
-        String nome; //Nome do robo do inimigo
-        Double distancia; //distancia a que o robot se encontra
-        Double velocidade; //velocidade a que o robot inimigo se desloca
+        String nome; // Nome do robo do inimigo
+        Double distancia; // distancia a que o robot se encontra
+        Double velocidade; // velocidade a que o robot inimigo se desloca
         Double angulo;
-        Double energia; //energia do robot inimigo
-        Double cordenadaX;//cordenada x a que o robot se encontra
-        Double cordenadaY;//distancia Y que o robot se encontra
+        Double energia; // energia do robot inimigo
+        Double cordenadaX;// cordenada x a que o robot se encontra
+        Double cordenadaY;// distancia Y que o robot se encontra
 
-        public Dados(String nome, Double distancia, Double velocidade, Double angulo,Double energia ,Double cordenadaX, Double cordenadaY) {
+        public Dados(String nome, Double distancia, Double velocidade, Double angulo, Double energia, Double cordenadaX,
+                Double cordenadaY) {
             this.nome = nome;
             this.distancia = distancia;
             this.velocidade = velocidade;
@@ -45,10 +49,10 @@ public class ReconhecimentoRobot extends AdvancedRobot {
     @Override
     public void run() {
         super.run();
-        
+
         File dataFile = this.getDataFile("reconhecimento.csv");
         boolean isEmpty = true;
-        
+
         try {
             BufferedReader buffer = new BufferedReader(new FileReader(dataFile));
             isEmpty = buffer.readLine() == null;
@@ -62,7 +66,7 @@ public class ReconhecimentoRobot extends AdvancedRobot {
             fw = new RobocodeFileOutputStream(dataFile.getAbsolutePath(), true);
             System.out.println("Writing to: " + fw.getName());
             System.out.println("Existe:" + isEmpty);
-            
+
             if (isEmpty) {
                 fw.write(("nome,distancia,velocidade,angulo,energia,cordenadaX,cordenadaY,hit\n").getBytes());
             }
@@ -91,7 +95,8 @@ public class ReconhecimentoRobot extends AdvancedRobot {
 
         if (b != null) {
             System.out.println("Firing at " + event.getName());
-            balasNoAr.put(b, new Dados(event.getName(), event.getVelocity(), event.getDistance(), event.getBearing(),event.getEnergy() ,coordinates.x, coordinates.y));
+            balasNoAr.put(b, new Dados(event.getName(), event.getVelocity(), event.getDistance(), event.getBearing(),
+                    event.getEnergy(), coordinates.x, coordinates.y));
         } else {
             System.out.println("Cannot fire right now...");
         }
@@ -104,11 +109,13 @@ public class ReconhecimentoRobot extends AdvancedRobot {
         super.onBulletHit(event);
         Dados d = balasNoAr.get(event.getBullet());
         try {
-            //Testar se acertei em quem era suposto
+            // Testar se acertei em quem era suposto
             if (event.getName().equals(event.getBullet().getVictim())) {
-                fw.write((d.nome + "," + d.distancia + "," + d.velocidade + "," +d.angulo+","+d.energia+","+ d.cordenadaX + "," + d.cordenadaY + ",hit\n").getBytes());
+                fw.write((d.nome + "," + d.distancia + "," + d.velocidade + "," + d.angulo + "," + d.energia + ","
+                        + d.cordenadaX + "," + d.cordenadaY + ",hit\n").getBytes());
             } else {
-                fw.write((d.nome + "," + d.distancia + "," + d.velocidade + "," +d.angulo+","+d.energia+","+ d.cordenadaX + "," + d.cordenadaY + ",no_hit\n").getBytes());
+                fw.write((d.nome + "," + d.distancia + "," + d.velocidade + "," + d.angulo + "," + d.energia + ","
+                        + d.cordenadaX + "," + d.cordenadaY + ",no_hit\n").getBytes());
             }
 
         } catch (IOException e) {
@@ -123,7 +130,8 @@ public class ReconhecimentoRobot extends AdvancedRobot {
         super.onBulletMissed(event);
         Dados d = balasNoAr.get(event.getBullet());
         try {
-            fw.write((d.nome + "," + d.distancia + "," + d.velocidade + "," +d.angulo+","+d.energia+","+ d.cordenadaX + "," + d.cordenadaY + ",no_hit\n").getBytes());
+            fw.write((d.nome + "," + d.distancia + "," + d.velocidade + "," + d.angulo + "," + d.energia + ","
+                    + d.cordenadaX + "," + d.cordenadaY + ",no_hit\n").getBytes());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -136,7 +144,8 @@ public class ReconhecimentoRobot extends AdvancedRobot {
         super.onBulletHitBullet(event);
         Dados d = balasNoAr.get(event.getBullet());
         try {
-            fw.write((d.nome + "," + d.distancia + "," + d.velocidade + "," +d.angulo+","+d.energia+","+ d.cordenadaX + "," + d.cordenadaY + ",no_hit\n").getBytes());
+            fw.write((d.nome + "," + d.distancia + "," + d.velocidade + "," + d.angulo + "," + d.energia + ","
+                    + d.cordenadaX + "," + d.cordenadaY + ",no_hit\n").getBytes());
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -14,6 +14,9 @@ import impl.UIConfiguration;
 import problemaB.GeneticAlgorithm;
 import problemaB.GeneticAlgorithm.Chromosome;
 
+/**
+ * robo que percorre o caminho mais curto, utilizando o algoritmo genetico
+ */
 public class GeneticAlgorithmBot extends AdvancedRobot {
 
     // #region VARIAVEIS
@@ -107,7 +110,7 @@ public class GeneticAlgorithmBot extends AdvancedRobot {
                 outputStream.write((solucao.getFitness() +
                         System.lineSeparator()).getBytes());
 
-                        i++;
+                i++;
 
                 if (i >= GeneticAlgorithm.MAX_GENERATIONS) {
                     break;
