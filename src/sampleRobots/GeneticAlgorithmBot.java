@@ -168,8 +168,8 @@ public abstract class GeneticAlgorithmBot extends AdvancedRobot {
             System.out.println("AQUI!!!!");
             // Se chegou ao fim do caminho, recalcula o caminho (opcional)
 
-            GeneticAlgorithm.START = new GeneticAlgorithm.Point(this.getY(), this.getX()); // ponto inicial
-            GeneticAlgorithm.END = new GeneticAlgorithm.Point(rand.nextDouble() * GeneticAlgorithmBot.conf.getWidth(),
+            GeneticAlgorithm.START_POINT = new GeneticAlgorithm.Point(this.getY(), this.getX()); // ponto inicial
+            GeneticAlgorithm.END_POINT = new GeneticAlgorithm.Point(rand.nextDouble() * GeneticAlgorithmBot.conf.getWidth(),
                     rand.nextDouble() * GeneticAlgorithmBot.conf.getHeight()); // ponto final
 
             GeneticAlgorithm ga = new GeneticAlgorithm();
