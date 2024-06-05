@@ -1,4 +1,4 @@
-package sampleRobots;
+package test;
 
 import robocode.*;
 import java.awt.Color;
@@ -15,8 +15,8 @@ public class Gorynych extends AdvancedRobot {
     private EasyPredictModelWrapper defenseModel;
     private boolean isAttackMode;
 
-    String attackModelPath = "bin\\sampleRobots\\Gorynych.data\\DRF_Attack.zip";
-    String defenseModelPath = "bin\\sampleRobots\\Gorynych.data\\DRF_Defense.zip";
+    String attackModelPath = "C:\\robocode\\robots\\test\\Gorynych.data\\DRF_Attack.zip";
+    String defenseModelPath = "C:\\robocode\\robots\\test\\Gorynych.data\\DRF_Defense.zip";
 
     @Override
     public void run() {
