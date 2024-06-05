@@ -107,7 +107,7 @@ public abstract class GeneticAlgorithmBot extends AdvancedRobot {
                 outputStream.write((solucao.getFitness() +
                         System.lineSeparator()).getBytes());
 
-                        i++;
+                i++;
 
                 if (i >= GeneticAlgorithm.MAX_GENERATIONS) {
                     break;

@@ -34,7 +34,7 @@ public class GridRobot extends AdvancedRobot {
 
         List<String> existingData = new ArrayList<>();
         File dataFile = getDataFile("robot_data.csv");
-
+        
         // Read existing data if the file exists
         if (dataFile.exists()) {
             try (BufferedReader reader = new BufferedReader(new FileReader(dataFile))) {
