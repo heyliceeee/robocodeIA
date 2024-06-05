@@ -10,7 +10,6 @@ import hex.genmodel.MojoModel;
 import hex.genmodel.easy.EasyPredictModelWrapper;
 import hex.genmodel.easy.RowData;
 import hex.genmodel.easy.prediction.*;
-import utils.Utils;
 
 /**
  * Robo que vai para uma localização, dependendo do que o modelo prevê

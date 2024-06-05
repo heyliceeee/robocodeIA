@@ -1,29 +1,30 @@
 package sampleRobots;
 
+import robocode.*;
 import java.awt.Color;
 import java.io.IOException;
-
+import java.util.Random;
 import hex.genmodel.MojoModel;
 import hex.genmodel.easy.EasyPredictModelWrapper;
 import hex.genmodel.easy.exception.PredictException;
-import robocode.BulletHitEvent;
-import robocode.HitByBulletEvent;
 import hex.genmodel.easy.RowData;
 import hex.genmodel.easy.prediction.*;
-import interf.Attacker;
-import interf.Defender;
 
-public class Gorynych extends GeneticAlgorithmBot implements Attacker, Defender {
+public class Gorynych extends AdvancedRobot {
     private EasyPredictModelWrapper attackModel;
     private EasyPredictModelWrapper defenseModel;
     private boolean isAttackMode;
+    
+    String attackModelPath = "C:\\Users\\xavie\\Github\\robocodeIA\\bin\\sampleRobots\\Gorynych.data\\DRF_Attack.zip";
+    String defenseModelPath = "C:\\Users\\xavie\\Github\\robocodeIA\\bin\\sampleRobots\\Gorynych.data\\DRF_Defense.zip";
 
     @Override
     public void run() {
         try {
-            attackModel = new EasyPredictModelWrapper(MojoModel.load(getDataFile("DRF_Attack.zip").getAbsolutePath()));
-            //defenseModel = new EasyPredictModelWrapper(
-              //      MojoModel.load(getDataFile("DRF_Defense.zip").getAbsolutePath()));
+            System.out.println("Loading attack model from: " + attackModelPath);
+            attackModel = new EasyPredictModelWrapper(MojoModel.load(attackModelPath));
+            System.out.println("Loading defense model from: " + defenseModelPath);
+            defenseModel = new EasyPredictModelWrapper(MojoModel.load(defenseModelPath));
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -56,12 +57,12 @@ public class Gorynych extends GeneticAlgorithmBot implements Attacker, Defender 
 
     @Override
     public void onHitByBullet(HitByBulletEvent event) {
-        isAttackMode = false; // Switch to defense mode
+        isAttackMode = false;
     }
 
     @Override
     public void onBulletHit(BulletHitEvent event) {
-        isAttackMode = true; // Switch to attack mode
+        isAttackMode = true;
     }
 
     private double[] getFeatures() {
@@ -69,6 +70,11 @@ public class Gorynych extends GeneticAlgorithmBot implements Attacker, Defender 
     }
 
     private double predictAction(EasyPredictModelWrapper model, double[] features) {
+        if (model == null) {
+            System.err.println("Model is not loaded properly.");
+            return 0;
+        }
+
         try {
             RowData row = new RowData();
             row.put("robotX", features[0]);
@@ -78,12 +84,12 @@ public class Gorynych extends GeneticAlgorithmBot implements Attacker, Defender 
 
             if (prediction instanceof BinomialModelPrediction) {
                 BinomialModelPrediction binomialPrediction = (BinomialModelPrediction) prediction;
-                return binomialPrediction.labelIndex; 
+                return binomialPrediction.labelIndex;
             } else if (prediction instanceof RegressionModelPrediction) {
                 RegressionModelPrediction regressionPrediction = (RegressionModelPrediction) prediction;
-                return regressionPrediction.value; 
+                return regressionPrediction.value;
             } else {
-                return 0; 
+                return 0;
             }
         } catch (PredictException e) {
             e.printStackTrace();
