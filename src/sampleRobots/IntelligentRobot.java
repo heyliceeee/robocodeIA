@@ -15,6 +15,7 @@ import hex.genmodel.easy.prediction.*;
  * robo que dispara, dependendo do que o modelo prevê
  */
 public class IntelligentRobot extends AdvancedRobot {
+    String caminhoAlice = "D:\\githubProjects\\robocodeIA\\bin\\sampleRobots\\IntelligentRobot.data\\DRF_M1.zip";
 
     EasyPredictModelWrapper model;
 
@@ -24,7 +25,7 @@ public class IntelligentRobot extends AdvancedRobot {
 
         System.out.println("Reading model from folder: " + getDataDirectory());
         try {
-            model = new EasyPredictModelWrapper(MojoModel.load(this.getDataFile("Modelo1.zip").getAbsolutePath()));
+            model = new EasyPredictModelWrapper(MojoModel.load(caminhoAlice));
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -32,8 +33,9 @@ public class IntelligentRobot extends AdvancedRobot {
         while (true) {
             setAhead(100);
             setTurnLeft(100);
+
             Random rand = new Random();
-            setAllColors(new Color(rand.nextInt(3), rand.nextInt(3), rand.nextInt(3)));
+            setAllColors(new Color(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255)));
             execute();
         }
 
@@ -47,7 +49,7 @@ public class IntelligentRobot extends AdvancedRobot {
         System.out.println("Enemy " + event.getName() + " spotted at " + coordinates.x + "," + coordinates.y + "\n");
 
         RowData row = new RowData();
-        row.put("name", event.getName());
+        // row.put("name", event.getName());
         row.put("distance", event.getDistance());
         row.put("velocity", event.getVelocity());
         row.put("angulo", event.getBearing());
@@ -59,11 +61,13 @@ public class IntelligentRobot extends AdvancedRobot {
 
         try {
             BinomialModelPrediction p = model.predictBinomial(row);
-            System.out.println("Will I hit? ->" + p.label);
+            System.out.println("Will I hit? -> " + p.label + "(" + p.classProbabilities[0] + "%)");
 
             // if the model predicts I will hit...
-            if (p.label.equals("hit"))
+            if (p.classProbabilities[0] >= 0.80) {
                 this.fire(3);
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
