@@ -14,16 +14,14 @@ public class Gorynych extends AdvancedRobot {
     private EasyPredictModelWrapper attackModel;
     private EasyPredictModelWrapper defenseModel;
     private boolean isAttackMode;
-    
-    String attackModelPath = "C:\\Users\\xavie\\Github\\robocodeIA\\bin\\sampleRobots\\Gorynych.data\\DRF_Attack.zip";
-    String defenseModelPath = "C:\\Users\\xavie\\Github\\robocodeIA\\bin\\sampleRobots\\Gorynych.data\\DRF_Defense.zip";
+
+    String attackModelPath = "bin\\sampleRobots\\Gorynych.data\\DRF_Attack.zip";
+    String defenseModelPath = "bin\\sampleRobots\\Gorynych.data\\DRF_Defense.zip";
 
     @Override
     public void run() {
         try {
-            System.out.println("Loading attack model from: " + attackModelPath);
             attackModel = new EasyPredictModelWrapper(MojoModel.load(attackModelPath));
-            System.out.println("Loading defense model from: " + defenseModelPath);
             defenseModel = new EasyPredictModelWrapper(MojoModel.load(defenseModelPath));
         } catch (IOException ex) {
             ex.printStackTrace();
