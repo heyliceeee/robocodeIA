@@ -2,7 +2,7 @@ package problemaB;
 
 import java.util.*;
 
-import sampleRobots.GeneticAlgorithmBot;
+import impl.UIConfiguration;
 
 public class GeneticAlgorithm {
     // Classe para representar um ponto
@@ -119,17 +119,24 @@ public class GeneticAlgorithm {
 
     static final Random rand = new Random();
 
-    public static Point START = new Point(rand.nextDouble() * GeneticAlgorithmBot.conf.getWidth(),
-            rand.nextDouble() * GeneticAlgorithmBot.conf.getHeight()); // ponto inicial
-    public static Point END = new Point(rand.nextDouble() * GeneticAlgorithmBot.conf.getWidth(),
-            rand.nextDouble() * GeneticAlgorithmBot.conf.getHeight()); // ponto final
+    public static Point START_POINT = new Point(0, 0);
+    public static Point END_POINT = new Point(0, 0);
 
     public static List<Chromosome> population;
     public static List<Chromosome> newPopulationFix;
     public static List<Chromosome> bestFitnessPop = new ArrayList<Chromosome>();
 
+    private UIConfiguration conf;
+
+    public GeneticAlgorithm(UIConfiguration conf) {
+        this.conf = conf;
+    }
+
     // Método para encontrar o caminho
-    public List<Point> findPath() {
+    public List<Point> findPath(Point startPoint, Point endPoint) {
+        GeneticAlgorithm.START_POINT = startPoint;
+        GeneticAlgorithm.END_POINT = endPoint;
+
         population = initializePopulation();
         int generation = 0;
 
@@ -160,11 +167,9 @@ public class GeneticAlgorithm {
         // topPChromosomes = populationAscendingOrder(population);
         // Collections.sort(newPopulationFix);
 
-        /*
-         * for (int i = 0; i < TOP; i++) {
-         * System.out.println(newPopulationFix.get(i));
-         * }
-         */
+        // for (int i = 0; i < TOP; i++) {
+        //     System.out.println(newPopulationFix.get(i));
+        // }
 
         System.out.println(
                 "------------------------------------------------------//------------------------------------------------------");
@@ -190,7 +195,7 @@ public class GeneticAlgorithm {
     // Gera um caminho aleatório entre START e END
     private List<Point> generateRandomPath() {
         List<Point> path = new ArrayList<>();
-        path.add(START);
+        path.add(START_POINT);
         int pontosIntermedios = rand.nextInt(5) + 1;
 
         for (int i = 0; i < pontosIntermedios; i++) { // Exemplo de 5 pontos intermedios
@@ -198,14 +203,14 @@ public class GeneticAlgorithm {
 
             // pontos intermedios nao podem ser iguais aos pontos inicial e final
             do {
-                x = rand.nextDouble() * GeneticAlgorithmBot.conf.getWidth();
-                y = rand.nextDouble() * GeneticAlgorithmBot.conf.getHeight();
+                x = rand.nextDouble() * conf.getWidth();
+                y = rand.nextDouble() * conf.getHeight();
 
-            } while ((x == START.getX() && y == START.getY()) || (x == END.getX() && y == END.getY()));
+            } while ((x == START_POINT.getX() && y == START_POINT.getY()) || (x == END_POINT.getX() && y == END_POINT.getY()));
 
             path.add(new Point(x, y));
         }
-        path.add(END);
+        path.add(END_POINT);
         return path;
     }
 
@@ -330,8 +335,8 @@ public class GeneticAlgorithm {
             Point p = path.get(i);
             if (rand.nextDouble() < (MUTATION_RATE / 100.0)) {
                 // Realiza a mutação no ponto
-                p.setX(rand.nextDouble() * GeneticAlgorithmBot.conf.getWidth());
-                p.setY(rand.nextDouble() * GeneticAlgorithmBot.conf.getHeight());
+                p.setX(rand.nextDouble() * conf.getWidth());
+                p.setY(rand.nextDouble() * conf.getHeight());
                 mutated = true; // Indica que houve mutação
                 // System.out.println( "Mutated point from (" + oldX + ", " + oldY + ") to (" +
                 // p.getX() + ", " + p.getY() + ")");

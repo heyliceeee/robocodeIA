@@ -10,7 +10,6 @@ import hex.genmodel.MojoModel;
 import hex.genmodel.easy.EasyPredictModelWrapper;
 import hex.genmodel.easy.RowData;
 import hex.genmodel.easy.prediction.*;
-import utils.Utils;
 
 /**
  * Robo que vai para uma localização, dependendo do que o modelo prevê
@@ -18,7 +17,7 @@ import utils.Utils;
 public class IntelligentGridRobot2 extends AdvancedRobot {
 
     EasyPredictModelWrapper model;
-    String caminhoJoaquim = "C:\\Users\\Utilizador\\Documents\\NetBeansProjects\\TP_IA_2024_Resources_Quim\\build\\classes\\sampleRobots\\IntelligentGridRobot2.data\\DP_GridRobot.zip";
+    String caminhoJoaquim = "";
     String caminhoDiogo = "";
     String caminhoAlice = "D:\\githubProjects\\robocodeIA\\bin\\sampleRobots\\IntelligentGridRobot2.data\\DP_GridRobot.zip";
     double lastX = Double.NaN;
